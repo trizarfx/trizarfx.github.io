@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Trizar.fx</title>
+<meta name="description" content="Trizar is a 3D studio for 3D animation, motion graphics and VFX.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed render stages pinned under a slim header, then a plain editorial flow.
+   Type follows the wordmark: wide and heavy. Outlined words = wireframe, solid words = final render. */
+:root{
+  --ink:#0A0709; --ink-2:#141013; --ink-3:#1d171a; --line:#2c2428;
+  --bone:#F7EEF2; --mute:#A99FA4; --ash:#696366;
+  --signal:#FF2E7E; --signal-hi:#FF5596; --signal-ink:#16050d;
+  --display:"Archivo","Arial Black",Impact,system-ui,sans-serif;
+  --body:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Martian Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --gut:clamp(16px,4vw,56px);
+  --head:64px;
+  color-scheme:dark;
+}
+html{background:var(--ink)}
+body{background:var(--ink);color:var(--bone);font:400 16px/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit}
+img,video,canvas{max-width:100%}
+::selection{background:var(--signal);color:var(--signal-ink)}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+
+.wrap{padding-inline:var(--gut)}
+.eyebrow,.mono{font:500 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.eyebrow{margin:0 0 14px;color:var(--signal)}
+h1,h2,h3{margin:0;text-wrap:balance}
+.display{font-family:var(--display);font-weight:850;font-stretch:125%;text-transform:uppercase;letter-spacing:-.01em}
+h1.display{font-size:clamp(34px,4.3vw,78px);line-height:.94}
+h2.display{font-size:clamp(30px,4.2vw,64px);line-height:.96}
+.wire{color:transparent;-webkit-text-stroke:.03em var(--signal);paint-order:stroke fill}
+.lede{font-size:clamp(16px,1.35vw,19px);line-height:1.55;color:var(--mute);max-width:52ch;margin:0}
+p{margin:0}
+
+/* Buttons: the 45° corner cut is the logo's beam */
+.btn{--cut:12px;display:inline-flex;align-items:center;gap:10px;padding:15px 22px;border:0;cursor:pointer;text-decoration:none;
+  font:750 12px/1 var(--body);font-stretch:118%;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--signal-ink);background:var(--signal);clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,0 100%);transition:background .2s}
+.btn:hover{background:var(--signal-hi)}
+.btn:focus-visible{outline:2px solid var(--bone);outline-offset:-5px}
+.btn.ghost{color:var(--bone);background:
+  linear-gradient(to bottom left,transparent calc(50% - 1px),var(--signal) calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1px)) top right/var(--cut) var(--cut) no-repeat,transparent;
+  box-shadow:inset 0 0 0 1.5px var(--signal)}
+.btn.ghost:hover{background-color:rgb(255 46 126 / .12)}
+.btn.sm{--cut:9px;padding:11px 15px;font-size:11px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.link{font:500 11px/1.4 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bone);text-decoration:none;border-bottom:1.5px solid var(--signal);padding-bottom:3px}
+.link:hover{color:var(--signal)}
+
+/* Header */
+.top{position:fixed;inset:0 0 auto 0;z-index:40;display:flex;align-items:center;gap:28px;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) var(--gut) 12px;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+.top.solid{background:rgb(10 7 9 / .84);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-color:var(--line)}
+.brand{display:block;line-height:0}
+.brand img{height:26px;width:auto}
+.top nav{display:flex;gap:28px;margin-left:auto}
+.top nav a{font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);text-decoration:none;padding:8px 0}
+.top nav a:hover{color:var(--bone)}
+@media (max-width:760px){.top nav{display:none}.top .btn{margin-left:auto}}
+
+/* Scroll stages */
+.scrolly{position:relative}
+#kb{height:430vh}
+#ear{height:330vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.kb-stage{background:radial-gradient(55% 45% at 68% 58%,rgb(255 46 126 / .07),transparent 70%)}
+.hero-copy{position:absolute;z-index:2;left:var(--gut);top:calc(var(--head) + 9vh);width:min(37vw,600px);display:grid;gap:22px}
+.hero-copy .row{margin-top:6px}
+.hint,.counter{position:absolute;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0}
+.hint{left:var(--gut);display:flex;align-items:center;gap:12px;color:var(--bone)}
+.hint::before{content:"";width:28px;height:2px;background:var(--signal)}
+.counter{right:var(--gut);font-variant-numeric:tabular-nums}
+.touch-only{display:none}
+@media (hover:none){.mouse-only{display:none}.touch-only{display:inline}}
+.kb-side{position:absolute;z-index:2;right:var(--gut);top:50%;translate:0 -50%;width:min(25vw,360px);display:grid;gap:16px;opacity:0;pointer-events:none}
+.kb-side.on{pointer-events:auto}
+.kb-side h2.display{font-size:clamp(26px,2.6vw,42px)}
+.kb-side .body{color:var(--mute);font-size:15px}
+.layers-inline{display:none}
+.layers{position:absolute;inset:0;list-style:none;margin:0;padding:0;pointer-events:none;z-index:2}
+.layers li{position:absolute;left:0;top:0;display:flex;align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .35s;
+  font:800 clamp(12px,1.1vw,16px)/1 var(--display);font-stretch:75%;text-transform:uppercase;letter-spacing:.03em}
+.layers li.on{opacity:1}
+.layers b{font:500 10px/1 var(--mono);color:var(--signal)}
+.layers i{position:relative;width:30px;height:2px;background:var(--signal)}
+.layers i::after{content:"";position:absolute;right:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--signal)}
+
+.ear-stage{background:radial-gradient(40% 50% at 28% 55%,rgb(247 238 242 / .06),transparent 70%)}
+.beats{position:absolute;z-index:2;left:52%;right:var(--gut);top:50%;translate:0 -50%;max-width:540px;display:grid;padding-left:36px}
+.beat{grid-area:1/1;display:grid;gap:16px;align-content:start;opacity:0;translate:0 18px;transition:opacity .45s,translate .45s}
+.beat.on{opacity:1;translate:0 0}
+.beat h2.display{font-size:clamp(28px,3.2vw,50px)}
+.beat .body{color:var(--mute);max-width:44ch}
+.rail{position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--line)}
+.rail i{display:block;width:100%;height:calc(var(--p,0) * 100%);background:var(--signal)}
+.rail b{position:absolute;left:-5px;width:12px;height:12px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 2px var(--line);transition:background .3s,box-shadow .3s}
+.rail b.on{background:var(--signal);box-shadow:inset 0 0 0 2px var(--signal)}
+
+@media (max-width:899px){
+  #kb{height:380vh} #ear{height:300vh}
+  .hero-copy{top:calc(var(--head) + 3vh);right:var(--gut);width:auto;gap:16px}
+  h1.display{font-size:clamp(32px,10.4vw,60px)}
+  .kb-side{top:calc(var(--head) + 2vh);left:var(--gut);right:var(--gut);width:auto;translate:none;gap:10px}
+  .kb-side .body{font-size:14px}
+  .layers-inline{font-size:10px;letter-spacing:.06em}
+  .kb-side .link{display:none}
+  .layers{display:none}
+  .hint{bottom:calc(50px + env(safe-area-inset-bottom,0px))}
+  .layers-inline{display:block;color:var(--bone);line-height:1.8}
+  .beats{left:var(--gut);right:var(--gut);top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));translate:none;padding:18px 0 0;
+    background:linear-gradient(transparent,var(--ink) 30%)}
+  .beat h2.display{font-size:clamp(24px,7.4vw,36px)}
+  .beat .body{font-size:14px}
+  .rail{display:none}
+}
+
+/* Sections */
+.section{padding-block:clamp(88px,11vw,160px)}
+.sec-head{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px 48px;align-items:end;margin-bottom:clamp(36px,5vw,64px)}
+@media (max-width:760px){.sec-head{grid-template-columns:1fr}}
+
+/* Work */
+.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-areas:"a c" "b c"}
+.clip{position:relative;margin:0;display:flex;flex-direction:column}
+.clip.a{grid-area:a}.clip.b{grid-area:b}.clip.c{grid-area:c}
+.clip-btn{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;margin:0;background:var(--ink-2);cursor:pointer;color:inherit;overflow:hidden;
+  clip-path:polygon(0 0,100% 0,100% 100%,22px 100%,0 calc(100% - 22px))}
+.clip.c .clip-btn{aspect-ratio:auto;flex:1}
+.clip-btn:focus-visible{outline:2px solid var(--signal);outline-offset:-4px}
+.clip video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.clip:hover video{transform:scale(1.02)}
+.clip .play{position:absolute;top:14px;left:14px;padding:7px 10px;background:rgb(10 7 9 / .72);color:var(--bone);opacity:0;transition:opacity .25s}
+.clip:hover .play,.clip-btn:focus-visible .play{opacity:1}
+@media (hover:none){.clip .play{opacity:1}}
+.clip figcaption{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:56px 20px 18px 28px;display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px 20px;
+  background:linear-gradient(transparent,rgb(10 7 9 / .9));pointer-events:none}
+.clip figcaption a{pointer-events:auto}
+.clip h3{font:800 clamp(17px,1.5vw,22px)/1.15 var(--display);font-stretch:112%}
+.clip .mono{margin-top:6px}
+@media (max-width:760px){
+  .work-grid{grid-template-columns:1fr;grid-template-areas:"a" "b" "c";gap:36px}
+  .clip.c .clip-btn{aspect-ratio:9/16;flex:none;max-height:80vh}
+  .clip figcaption{position:static;background:none;padding:14px 0 0}
+}
+
+dialog.lb{border:0;padding:0;background:transparent;color:var(--bone);max-width:none;max-height:none;overflow:visible}
+dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
+.lb-inner{display:grid;gap:12px;justify-items:start}
+.lb video{display:block;max-width:92vw;max-height:80vh;width:auto;height:auto;background:#000}
+.lb-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%}
+.lb-close{background:none;border:0;color:var(--bone);cursor:pointer;padding:8px 0}
+
+/* Services: a wire with a node per service */
+.svc{list-style:none;margin:0;padding:0;position:relative}
+.svc::before{content:"";position:absolute;left:6px;top:40px;bottom:40px;width:2px;background:var(--line)}
+.svc a{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) 11rem;gap:10px 40px;align-items:center;padding:26px 0 26px 44px;text-decoration:none}
+.svc a::before{content:"";position:absolute;left:0;top:50%;translate:0 -50%;width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 2px var(--signal);transition:background .2s}
+.svc a:hover::before,.svc a:focus-visible::before{background:var(--signal)}
+.svc h3{font:850 clamp(22px,2.6vw,40px)/1 var(--display);font-stretch:125%;text-transform:uppercase;transition:translate .25s}
+.svc a:hover h3{translate:8px 0}
+.svc p{color:var(--mute);max-width:46ch}
+.svc .price{text-align:right;display:grid;gap:6px;justify-items:end}
+.svc .price strong{font:750 15px/1 var(--body);font-stretch:112%;white-space:nowrap}
+.svc .go{color:var(--signal)}
+@media (max-width:860px){.svc a{grid-template-columns:1fr;padding-block:20px}.svc .price{justify-items:start;text-align:left;grid-auto-flow:column;gap:16px;align-items:baseline}}
+.fine{margin-top:28px;color:var(--mute);font-size:14px}
+
+/* Contact: the logo's beam crosses the section */
+.contact{position:relative;overflow:hidden;border-top:1px solid var(--line)}
+.contact::before{content:"";position:absolute;width:6px;height:260%;left:74%;top:-80%;background:var(--signal);rotate:45deg}
+@media (max-width:900px){.contact::before{display:none}}
+.contact-in{position:relative;display:grid;gap:28px;max-width:760px}
+.contact h2.display{font-size:clamp(40px,7vw,112px);line-height:.92}
+.mailrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:18px 0;border-block:1px solid var(--line)}
+.mailrow code{font:500 clamp(15px,1.8vw,22px)/1.3 var(--mono);color:var(--bone);user-select:all;word-break:break-all}
+.textbtn{background:none;border:0;padding:6px 0;cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
+.textbtn:hover{color:var(--signal-hi)}
+.status{min-height:1.5em;font-size:13px;color:var(--mute)}
+.foot{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:24px;padding-block:48px calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
+.foot img{width:84px;height:auto}
+.foot p{color:var(--mute);font-size:14px}
+
+/* Budget view */
+.budget{padding-block:calc(var(--head) + clamp(40px,6vw,80px)) 120px}
+.budget-head{display:grid;gap:18px;max-width:760px;margin-bottom:clamp(40px,5vw,64px)}
+.budget-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(28px,4vw,72px);align-items:start}
+.steps{position:relative;counter-reset:step;display:grid;gap:52px}
+.steps::before{content:"";position:absolute;left:14px;top:14px;bottom:14px;width:2px;background:var(--line)}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.step{counter-increment:step;position:relative;padding-left:48px;display:grid;gap:14px}
+.step legend{float:left;width:100%;padding:0;margin:0 0 14px;font:750 clamp(17px,1.5vw,20px)/1.25 var(--body);font-stretch:112%}
+.step legend::before{content:counter(step,decimal-leading-zero);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);box-shadow:inset 0 0 0 2px var(--signal);font:500 10px/1 var(--mono);color:var(--bone)}
+.step > :not(legend){clear:both}
+.note{color:var(--mute);font-size:14px}
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.choice{position:relative;display:block;cursor:pointer}
+.choice input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.choice > span{display:grid;gap:4px;align-content:start;height:100%;box-sizing:border-box;padding:14px 16px;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .15s,background .15s}
+.choice b{font-weight:700;font-size:15px}
+.choice small{color:var(--mute);font-size:13px;line-height:1.4}
+.choice:hover > span{box-shadow:inset 0 0 0 1px var(--ash)}
+.choice input:checked + span{box-shadow:inset 0 0 0 2px var(--signal);background:var(--ink-3)}
+.choice input:focus-visible + span{outline:2px solid var(--bone);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:0;width:fit-content;max-width:100%;box-shadow:inset 0 0 0 1px var(--line)}
+.seg .choice > span{padding:11px 16px;background:transparent;box-shadow:none;font-weight:650;font-size:14px}
+.seg .choice input:checked + span{background:var(--signal);color:var(--signal-ink);box-shadow:none}
+.range{display:flex;align-items:center;gap:18px}
+.range input{flex:1;min-width:0;accent-color:var(--signal);height:28px}
+.range output{min-width:7.5ch;text-align:right;font:750 22px/1 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
+.part{display:block;margin-bottom:6px;font:500 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
+.tiers{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.choice strong{font:800 22px/1.1 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums;margin:6px 0 4px}
+.choice strong small{font:500 11px var(--mono);color:var(--mute);margin:0;display:inline}
+.choices.one{grid-template-columns:1fr}
+.choices.one .choice > span{padding-right:120px;position:relative}
+.choices.one .choice > span::after{content:"Add";position:absolute;right:16px;top:50%;translate:0 -50%;padding:8px 12px;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;box-shadow:inset 0 0 0 1.5px var(--signal);color:var(--bone)}
+.choices.one .choice input:checked + span::after{content:"Added ✓";background:var(--signal);color:var(--signal-ink)}
+@media (max-width:560px){.choices.one .choice > span{padding-right:16px;padding-bottom:56px}.choices.one .choice > span::after{top:auto;bottom:14px;right:auto;left:16px;translate:none}}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fields label{display:grid;gap:6px;font-size:13px;color:var(--mute)}
+.fields .full{grid-column:1/-1}
+.fields input,.fields textarea{width:100%;box-sizing:border-box;padding:12px 14px;background:var(--ink-2);color:var(--bone);border:1px solid var(--line);font:400 15px/1.4 var(--body);border-radius:0}
+.fields input:focus,.fields textarea:focus{border-color:var(--signal);outline:none}
+@media (max-width:560px){.fields{grid-template-columns:1fr}}
+
+.summary{position:sticky;top:calc(var(--head) + 20px);background:var(--ink-2);padding:clamp(18px,2vw,28px);display:grid;gap:18px;
+  clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,0 100%)}
+.sum-canvas{width:100%;aspect-ratio:16/9;display:block;margin:-6px 0 -10px}
+.sum-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.total{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;font:850 clamp(32px,3.2vw,48px)/1.05 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
+.total s{font:500 14px/1 var(--mono);color:var(--mute)}
+.total .off{align-self:center;padding:6px 9px;background:var(--signal);color:var(--signal-ink);font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.lines{list-style:none;margin:0;padding:14px 0 0;display:grid;gap:9px;border-top:1px solid var(--line)}
+.lines li{display:flex;justify-content:space-between;gap:16px;font-size:14px;color:var(--mute)}
+.lines li span:last-child{font:500 12px/1.6 var(--mono);color:var(--bone);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lines .disc,.lines .disc span:last-child{color:var(--signal)}
+.lines .sum{padding-top:9px;border-top:1px solid var(--line);color:var(--bone);font-weight:700}
+.sum-actions{display:grid;gap:12px}
+.sum-actions .row{gap:10px}
+details.brief summary{cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:6px 0}
+details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:220px;padding:12px;background:var(--ink);color:var(--bone);border:1px solid var(--line);font:400 12px/1.6 var(--mono);resize:vertical}
+.mbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px var(--gut) calc(12px + env(safe-area-inset-bottom,0px));background:rgb(20 16 19 / .96);border-top:2px solid var(--signal)}
+.mbar strong{font:800 16px/1.2 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
+@media (max-width:899px){.budget-grid{grid-template-columns:1fr}.summary{position:static}.mbar{display:flex}body:has(#budget-view:not([hidden])) .foot{padding-bottom:110px}}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.clip:hover video{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="top" id="top-bar">
+  <a class="brand" href="#top" aria-label="Trizar home"><img src="img/logo.webp" alt="Trizar" width="720" height="181"></a>
+  <nav aria-label="Main">
+    <a href="#work">Work</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <a class="btn sm" href="#budget">Get an estimate</a>
+</header>
+
+<main id="home">
+  <!-- 1. Hero + keyboard: scroll takes it apart -->
+  <section id="kb" class="scrolly" aria-label="Keyboard exploded view">
+    <div class="stage kb-stage">
+      <canvas id="kb-canvas" role="img" aria-label="A mechanical keyboard that turns, then separates into its eleven layers as you scroll"></canvas>
+      <div class="hero-copy" id="hero-copy">
+        <p class="eyebrow">3D animation · Motion graphics · VFX</p>
+        <h1 class="display"><span class="wire">Wireframe</span> to final frame.</h1>
+        <p class="lede">Trizar is a 3D studio started by three co-founders. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
+        <div class="row">
+          <a class="btn" href="#budget">Estimate your budget</a>
+          <a class="btn ghost" href="#work">See the work</a>
+        </div>
+      </div>
+      <div class="kb-side" id="kb-side">
+        <p class="eyebrow">Exploded view</p>
+        <h2 class="display"><span class="wire">Every</span> layer, modelled.</h2>
+        <p class="body">Eleven parts, from keycaps to bottom case, each modelled and lit to hold up in close-up. Built in Maya and taken apart on your scroll.</p>
+        <p class="layers-inline mono">Keycaps · Top frame · Switches · Dampening ×3 · Plate · PCB · Foam ×2 · Bottom case</p>
+        <p><a class="link" href="#work">Watch the full film</a></p>
+      </div>
+      <ol class="layers" id="layers" aria-hidden="true"></ol>
+      <p class="hint mono" id="kb-hint"><span class="mouse-only">Move your cursor to turn it. Scroll to take it apart.</span><span class="touch-only">Scroll to take it apart.</span></p>
+      <p class="counter mono" id="kb-counter">Frame 001 / 250</p>
+    </div>
+  </section>
+
+  <!-- 2. Work -->
+  <section id="work" class="section wrap" aria-labelledby="work-title">
+    <div class="sec-head">
+      <h2 class="display" id="work-title"><span class="wire">Selected</span> work</h2>
+      <p class="lede">Recent films from the studio. Previews play silently; open any piece to watch it with sound.</p>
+    </div>
+    <div class="work-grid">
+      <figure class="clip a">
+        <button class="clip-btn" type="button" data-src="work/keyboard.mp4" data-title="Keyboard, taken apart" aria-label="Play Keyboard, taken apart, with sound">
+          <video muted loop playsinline preload="none" poster="work/keyboard.jpg" src="work/keyboard.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Keyboard, taken apart</h3><p class="mono">3D animation · 0:25 · 1440p · 60 fps</p></div>
+          <a class="link" href="#budget-25">Price a film like this</a>
+        </figcaption>
+      </figure>
+      <figure class="clip b">
+        <button class="clip-btn" type="button" data-src="work/phone.mp4" data-title="Phone hype teaser" aria-label="Play Phone hype teaser, with sound">
+          <video muted loop playsinline preload="none" poster="work/phone.jpg" src="work/phone.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Phone hype teaser</h3><p class="mono">Motion graphics · 0:16 · 1080p</p></div>
+          <a class="link" href="#budget-15">Price a film like this</a>
+        </figcaption>
+      </figure>
+      <figure class="clip c">
+        <button class="clip-btn" type="button" data-src="work/earbuds.mp4" data-title="Earbuds feature film" aria-label="Play Earbuds feature film, with sound">
+          <video muted loop playsinline preload="none" poster="work/earbuds.jpg" src="work/earbuds.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Earbuds feature film</h3><p class="mono">3D animation · 9:16 · 0:26</p></div>
+          <a class="link" href="#budget-25">Price a film like this</a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 3. Earbuds: scroll builds it up -->
+  <section id="ear" class="scrolly" aria-label="Earbuds render">
+    <div class="stage ear-stage">
+      <canvas id="ear-canvas" role="img" aria-label="An earbuds charging case opens and the two buds drop into place as you scroll"></canvas>
+      <div class="beats" id="beats">
+        <div class="rail" aria-hidden="true"><i></i><b style="top:0"></b><b style="top:calc(50% - 6px)"></b><b style="bottom:0"></b></div>
+        <article class="beat on">
+          <p class="eyebrow">Materials</p>
+          <h2 class="display"><span class="wire">Surfaces</span> that read true</h2>
+          <p class="body">Gloss plastic, brushed metal, soft silicone. We light every surface so it looks like the real product, only better.</p>
+        </article>
+        <article class="beat">
+          <p class="eyebrow">Motion</p>
+          <h2 class="display"><span class="wire">Every move</span> explains something</h2>
+          <p class="body">The lid opens, the buds drop in, the case settles. Each shot shows the product the way a customer will use it.</p>
+        </article>
+        <article class="beat">
+          <p class="eyebrow">Delivery</p>
+          <h2 class="display"><span class="wire">Made for</span> the scroll</h2>
+          <p class="body">You are scrubbing through our render frames right now. We can deliver the same sequence for your product page, plus cuts for Reels, Shorts and ads.</p>
+        </article>
+      </div>
+      <p class="counter mono" id="ear-counter">Frame 289 / 480</p>
+    </div>
+  </section>
+
+  <!-- 4. Services -->
+  <section id="services" class="section wrap" aria-labelledby="svc-title">
+    <div class="sec-head">
+      <h2 class="display" id="svc-title"><span class="wire">What we</span> make</h2>
+      <p class="lede">Three services, one pipeline. 3D animation and motion graphics are priced by the second in the budget calculator; VFX is quoted per project.</p>
+    </div>
+    <ul class="svc">
+      <li><a href="#budget-standard"><h3>3D animation</h3><p>Product films, launch animations and exploded views. Modelling, lighting and rendering are included.</p><span class="price"><strong data-price="tier"></strong><span class="mono go">Estimate</span></span></a></li>
+      <li><a href="#budget"><h3>Motion graphics &amp; editing</h3><p>Motion graphics, video editing and SFX that turn a render sequence into a finished film.</p><span class="price"><strong data-price="addon"></strong><span class="mono go">Estimate</span></span></a></li>
+      <li><a href="#contact"><h3>VFX &amp; CGI</h3><p>CG products and effects composited into live-action footage.</p><span class="price"><strong>Custom quote</strong><span class="mono go">Contact</span></span></a></li>
+    </ul>
+    <p class="fine" id="svc-fine"></p>
+  </section>
+
+  <!-- 5. Contact -->
+  <section id="contact" class="section wrap contact" aria-labelledby="contact-title">
+    <div class="contact-in">
+      <p class="eyebrow">Contact</p>
+      <h2 class="display" id="contact-title"><span class="wire">Start a</span> project</h2>
+      <p class="lede">Tell us what you are launching and when you need it. A rough budget helps: the calculator gives you one in a minute.</p>
+      <div class="mailrow">
+        <code id="email-text"></code>
+        <button class="textbtn" type="button" id="copy-email">Copy email</button>
+        <a class="textbtn" id="mail-link" href="#contact">Open in mail app</a>
+      </div>
+      <p class="status" id="email-status" role="status"></p>
+      <div class="row">
+        <a class="btn" href="#budget">Estimate your budget</a>
+        <a class="btn ghost" id="wa-link" href="#contact" target="_blank" rel="noopener" hidden>WhatsApp us</a>
+        <a class="btn ghost" id="ig-link" href="#contact" target="_blank" rel="noopener" hidden>Instagram</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Budget calculator view (#budget) -->
+<main id="budget-view" class="budget wrap" hidden>
+  <div class="budget-head">
+    <p class="eyebrow">Budget calculator</p>
+    <h1 class="display"><span class="wire">Budget</span> breakdown</h1>
+    <p class="lede">Pick a tier and a length to see your price. It is an estimate: we confirm the final quote after a short call about your brief.</p>
+  </div>
+  <div class="budget-grid">
+    <form id="calc" class="steps" novalidate>
+      <fieldset class="step">
+        <legend><span class="part">Part 1 · 3D animation</span>Choose a tier</legend>
+        <div class="choices tiers" id="tier-choices"></div>
+      </fieldset>
+      <fieldset class="step">
+        <legend id="qty-q">How long is the film?</legend>
+        <div class="range"><input type="range" id="qty" name="qty" min="15" max="120" step="5" value="30" aria-labelledby="qty-q"><output id="qty-out" for="qty">30 sec</output></div>
+        <p class="note">Priced per second of finished film.</p>
+      </fieldset>
+      <fieldset class="step">
+        <legend><span class="part">Part 2 · Post-production</span>Finish it as a film</legend>
+        <div class="choices one" id="addon-choices"></div>
+      </fieldset>
+      <fieldset class="step">
+        <legend>About you <span class="note">(optional)</span></legend>
+        <div class="fields">
+          <label>Name<input id="f-name" autocomplete="name"></label>
+          <label>Brand or company<input id="f-brand" autocomplete="organization"></label>
+          <label class="full">Anything else we should know?<textarea id="f-notes" rows="3" placeholder="Launch date, references, where the film will run"></textarea></label>
+        </div>
+      </fieldset>
+    </form>
+
+    <aside class="summary" id="summary" aria-label="Your estimate">
+      <canvas class="sum-canvas" id="bud-canvas" aria-hidden="true"></canvas>
+      <p class="mono">The bigger the brief, the further it comes apart</p>
+      <div>
+        <p class="eyebrow">Estimated budget</p>
+        <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off">10% off</span></p>
+      </div>
+      <ul class="lines" id="t-lines"></ul>
+      <p class="note">Prices exclude taxes.</p>
+      <div class="sum-actions">
+        <div class="row">
+          <button class="btn" type="button" id="copy-brief">Copy brief</button>
+          <a class="btn ghost" id="wa-brief" href="#budget" target="_blank" rel="noopener" hidden>Send on WhatsApp</a>
+          <a class="btn ghost" id="mail-brief" href="#budget">Email brief</a>
+        </div>
+        <p class="status" id="brief-status" role="status"></p>
+        <details class="brief"><summary>Preview brief</summary><textarea id="brief" readonly aria-label="Project brief"></textarea></details>
+      </div>
+    </aside>
+  </div>
+  <div class="mbar" id="mbar"><div><p class="mono">Estimate</p><strong id="m-range"></strong></div><button class="btn sm ghost" type="button" id="m-go">Breakdown</button></div>
+</main>
+
+<footer class="foot wrap">
+  <img src="img/logo-stack.webp" alt="Trizar" width="360" height="414">
+  <p>3D animation · Motion graphics · VFX</p>
+  <p class="mono">© 2026 Trizar.fx</p>
+</footer>
+
+<dialog class="lb" id="lightbox" aria-label="Video player">
+  <div class="lb-inner">
+    <div class="lb-bar"><p class="mono" id="lb-title"></p><button class="lb-close mono" type="button" id="lb-close">Close ✕</button></div>
+    <video id="lb-video" controls playsinline></video>
+  </div>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+/* ================= Edit these ================= */
+// whatsapp: digits with country code, e.g. '919800000000'. instagram: full profile URL. Empty = button hidden.
+const CONTACT = { email: 'trizar.fx.anm@gmail.com', whatsapp: '', instagram: 'https://www.instagram.com/trizar.fx/' };
+// Part 1: 3D animation tiers (modelling included), price per second
+const TIERS = {
+  standard:  { name: 'Standard',  rate: 2699, desc: 'Rendering, lighting and a detailed model of your product.' },
+  premium:   { name: 'Premium',   rate: 2999, desc: 'Rendering, lighting and a detailed model of a complex product, with kitbashed background props.' },
+  exclusive: { name: 'Exclusive', rate: 3499, desc: 'Rendering, lighting and a detailed model of a complex product, with background props we model from scratch.' },
+};
+// Part 2: post-production, price per 15 seconds
+const ADDONS = [
+  { id: 'mg', name: 'Motion graphics, video editing and SFX', per15: 6999, desc: 'We turn the render sequence into a finished film.', on: true },
+];
+const BASE_SEC = 15;   // prices are quoted for 15 seconds
+const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole estimate
+/* ============================================== */
+
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), lerp = (a, b, t) => a + (b - a) * t;
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+const inr = v => '₹' + Math.round(v).toLocaleString('en-IN');
+const pct = Math.round(DISCOUNT * 100) + '%';
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- Estimate (pure) ---------- */
+function estimate(s) {
+  const t = TIERS[s.tier];
+  const lines = [{ label: `${t.name} 3D animation, ${s.sec} sec × ${inr(t.rate)}`, v: t.rate * s.sec }];
+  for (const a of ADDONS) if (s.addons.includes(a.id)) lines.push({ label: `${a.name}, ${s.sec} sec`, v: Math.round(a.per15 * s.sec / BASE_SEC) });
+  const sub = lines.reduce((n, l) => n + l.v, 0);
+  const off = s.sec > BASE_SEC ? Math.round(sub * DISCOUNT) : 0;
+  return { lines, sub, off, total: sub - off };
+}
+
+/* ---------- Image sequences: coarse frames first, then fill in ---------- */
+function makeSeq(dir, n) {
+  const s = { dir, n, img: [], ok: [], order: [] }, seen = new Set();
+  for (let st = 16; st >= 1; st >>= 1) for (let i = 0; i < n; i += st) if (!seen.has(i)) { seen.add(i); s.order.push(i); }
+  return s;
+}
+const KB = makeSeq('seq/kb', 125), AP = makeSeq('seq/ap', 96);
+const queue = [...KB.order.map(i => [KB, i]), ...AP.order.map(i => [AP, i])];
+let qi = 0, active = 0, loaded = 0;
+function pump() {
+  while (active < 6 && qi < queue.length) {
+    const [s, i] = queue[qi++], im = new Image(); active++;
+    im.src = `${s.dir}/${String(i).padStart(3, '0')}.webp`;
+    im.decode().then(() => { s.img[i] = im; s.ok[i] = true; loaded++; }, () => {}).finally(() => { active--; pump(); });
+  }
+}
+function frameAt(s, i) { for (let d = 0; d < s.n; d++) { if (s.ok[i - d]) return s.img[i - d]; if (s.ok[i + d]) return s.img[i + d]; } return null; }
+
+function fit(c) {
+  const r = c.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2), w = Math.round(r.width * d), h = Math.round(r.height * d);
+  if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  return { W: r.width, H: r.height, d };
+}
+const contain = (sw, sh, b) => { const k = Math.min(b.w / sw, b.h / sh); return { x: b.x + (b.w - sw * k) / 2, y: b.y + (b.h - sh * k) / 2, w: sw * k, h: sh * k, k }; };
+const mix = (a, b, t) => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) });
+const prog = el => { const r = el.getBoundingClientRect(); return { r, p: clamp(-r.top / (r.height - innerHeight)) }; };
+
+/* ---------- Stage 1: keyboard turns with the cursor, comes apart on scroll ---------- */
+// y = where each layer sits in the final exploded frame, 0 = top of the stack, 1 = bottom
+const LAYERS = [['01', 'Keycaps', .025], ['02', 'Top frame', .16], ['03', 'Switches', .25], ['04–06', 'Dampening ×3', .43], ['07', 'Plate', .575], ['08', 'PCB', .67], ['09–10', 'Foam ×2', .8], ['11', 'Bottom case', .93]];
+$('#layers').innerHTML = LAYERS.map(([n, t]) => `<li><b>${n}</b>${t}<i></i></li>`).join('');
+const layerLis = $$('#layers li'), heroCopy = $('#hero-copy'), side = $('#kb-side'), hint = $('#kb-hint'), kbCounter = $('#kb-counter');
+const kb = { sec: $('#kb'), c: $('#kb-canvas'), shown: 0, mouse: 0, mouseT: 0, key: '' };
+kb.ctx = kb.c.getContext('2d');
+addEventListener('pointermove', e => { if (e.pointerType === 'mouse') kb.mouseT = e.clientX / innerWidth; }, { passive: true });
+
+function tickKB() {
+  const { r, p } = prog(kb.sec); if (r.bottom < 0 || r.top > innerHeight) return;
+  const { W, H, d } = fit(kb.c), wide = W >= 900;
+  kb.mouse = lerp(kb.mouse, kb.mouseT, .08);
+  const target = clamp((p - .06) / .66) * 124 + (1 - smooth(0, .05, p)) * kb.mouse * 34;
+  kb.shown = reduce ? target : lerp(kb.shown, target, .18);
+  const i = Math.round(kb.shown), e = smooth(0, .14, p);
+  const box = mix(wide ? { x: W * .40, y: H * .14, w: W * .58, h: H * .78 } : { x: 0, y: H * .54, w: W, h: H * .40 },
+                  wide ? { x: 0, y: H * .1, w: W * .84, h: H * .86 } : { x: 0, y: H * .42, w: W, h: H * .52 }, e);
+  // phones: zoom onto the stack once it has come apart
+  const src = mix({ x: 0, y: 0, w: 1440, h: 800 }, { x: 360, y: 0, w: 740, h: 800 }, wide ? 0 : smooth(60, 100, kb.shown));
+  const dst = contain(src.w, src.h, box), img = frameAt(KB, i);
+  const key = [i, W, H, dst.x | 0, dst.y | 0, dst.w | 0, loaded, p.toFixed(3)].join();
+  if (key !== kb.key) {
+    kb.key = key;
+    const c = kb.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
+    c.save(); // the logo's orbit ring, behind the model
+    c.translate(dst.x + dst.w / 2, dst.y + dst.h * .52); c.rotate((-18 + p * 36) * Math.PI / 180);
+    c.strokeStyle = `rgba(105,99,102,${(.6 * (1 - smooth(.3, .55, p))).toFixed(3)})`; c.lineWidth = 1.5;
+    c.beginPath(); c.ellipse(0, 0, dst.w * .47, dst.h * (.2 + e * .12), 0, 0, Math.PI * 2); c.stroke(); c.restore();
+    if (img) c.drawImage(img, src.x, src.y, src.w, src.h, dst.x, dst.y, dst.w, dst.h);
+  }
+  const fade = smooth(.02, .1, p);
+  heroCopy.style.opacity = 1 - fade; heroCopy.style.translate = `0 ${-fade * 40}px`; heroCopy.style.visibility = fade > .99 ? 'hidden' : '';
+  hint.style.opacity = 1 - smooth(0, .05, p);
+  const sOn = smooth(.62, .7, p); side.style.opacity = sOn; side.classList.toggle('on', sOn > .5);
+  kbCounter.textContent = `Frame ${String(i * 2 + 1).padStart(3, '0')} / 250`;
+  if (wide) LAYERS.forEach((L, k) => {
+    const x = dst.x + (395 - src.x) * dst.k, y = dst.y + (10 + L[2] * 763 - src.y) * dst.k;
+    layerLis[k].style.transform = `translate(${x}px,${y}px) translate(-100%,-50%)`;
+    layerLis[k].classList.toggle('on', i >= 96 && p > .66 + k * .028);
+  });
+}
+
+/* ---------- Stage 2: earbuds case opens, buds drop in ---------- */
+const ear = { sec: $('#ear'), c: $('#ear-canvas'), shown: 0, key: '' };
+ear.ctx = ear.c.getContext('2d');
+const beats = $$('.beat'), rail = $('.rail'), railNodes = $$('.rail b'), earCounter = $('#ear-counter');
+function tickEar() {
+  const { r, p } = prog(ear.sec); if (r.bottom < 0 || r.top > innerHeight) return;
+  const { W, H, d } = fit(ear.c), wide = W >= 900;
+  const target = clamp((p - .04) / .8) * 95;
+  ear.shown = reduce ? target : lerp(ear.shown, target, .18);
+  const i = Math.round(ear.shown), img = frameAt(AP, i);
+  const dst = contain(517, 1100, wide ? { x: W * .05, y: H * .1, w: W * .44, h: H * .86 } : { x: 0, y: H * .09, w: W, h: H * .56 });
+  const key = [i, W, H, loaded].join();
+  if (key !== ear.key) {
+    ear.key = key;
+    const c = ear.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
+    if (img) {
+      c.drawImage(img, dst.x, dst.y, dst.w, dst.h);
+      // the buds enter from the top edge of the render: fade that edge out
+      c.globalCompositeOperation = 'destination-out';
+      const g = c.createLinearGradient(0, dst.y, 0, dst.y + dst.h * .16);
+      g.addColorStop(0, '#000'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      c.fillStyle = g; c.fillRect(dst.x, dst.y, dst.w, dst.h * .16);
+      c.globalCompositeOperation = 'source-over';
+    }
+  }
+  const k = p < .36 ? 0 : p < .68 ? 1 : 2;
+  beats.forEach((b, j) => b.classList.toggle('on', j === k));
+  rail.style.setProperty('--p', p.toFixed(3)); railNodes.forEach((n, j) => n.classList.toggle('on', j <= k));
+  earCounter.textContent = `Frame ${289 + i} / 480`;
+}
+
+/* ---------- Budget calculator ---------- */
+const calc = $('#calc');
+$('#tier-choices').innerHTML = Object.entries(TIERS).map(([id, t], n) => `
+  <label class="choice"><input type="radio" name="tier" id="tier-${id}" value="${id}"${n ? '' : ' checked'}>
+  <span><b>${t.name}</b><strong>${inr(t.rate)}<small> / sec</small></strong><small>${t.desc}</small></span></label>`).join('');
+$('#addon-choices').innerHTML = ADDONS.map(a => `
+  <label class="choice"><input type="checkbox" id="addon-${a.id}" value="${a.id}"${a.on ? ' checked' : ''}>
+  <span><b>${a.name}</b><strong>${inr(a.per15)}<small> / ${BASE_SEC} sec</small></strong><small>${a.desc}</small></span></label>`).join('');
+
+const readState = () => ({
+  tier: calc.elements.tier.value,
+  sec: +$('#qty').value,
+  addons: ADDONS.filter(a => $('#addon-' + a.id).checked).map(a => a.id),
+  name: $('#f-name').value.trim(), brand: $('#f-brand').value.trim(), notes: $('#f-notes').value.trim(),
+});
+function brief(s, r) {
+  const t = TIERS[s.tier];
+  const L = ['Hi Trizar, here is a project brief from your budget calculator.', '',
+    `3D animation tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
+    ...ADDONS.map(a => `${a.name}: ${s.addons.includes(a.id) ? 'yes' : 'no'}`),
+    `Estimate: ${inr(r.total)}${r.off ? ` after ${pct} off (${inr(r.sub)} before)` : ''}, excluding taxes`];
+  if (s.name || s.brand || s.notes) L.push('');
+  if (s.name) L.push(`Name: ${s.name}`);
+  if (s.brand) L.push(`Brand: ${s.brand}`);
+  if (s.notes) L.push(`Notes: ${s.notes}`);
+  return L.join('\n');
+}
+const bud = { c: $('#bud-canvas'), shown: 30, target: 30, key: '' };
+bud.ctx = bud.c.getContext('2d');
+function update() {
+  const s = readState(), r = estimate(s), b = brief(s, r);
+  $('#qty-out').textContent = s.sec + ' sec';
+  $('#t-total').textContent = inr(r.total);
+  $('#t-sub').textContent = inr(r.sub); $('#t-sub').hidden = $('.total .off').hidden = !r.off;
+  $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
+    + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
+             : `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>`)
+    + `<li class="sum"><span>Total</span><span>${inr(r.total)}</span></li>`;
+  $('#m-range').textContent = inr(r.total);
+  $('#brief').value = b;
+  $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + TIERS[s.tier].name + ', ' + s.sec + ' sec')}&body=${encodeURIComponent(b)}`;
+  if (CONTACT.whatsapp) $('#wa-brief').href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(b)}`;
+  // the keyboard comes further apart as the estimate grows
+  bud.target = 20 + clamp(Math.log(r.total / 36000) / Math.log(480000 / 36000)) * 104;
+}
+calc.addEventListener('input', update);
+calc.addEventListener('change', update);
+function tickBud() {
+  const { W, H, d } = fit(bud.c); if (!W) return;
+  bud.shown = reduce ? bud.target : lerp(bud.shown, bud.target, .08);
+  const i = Math.round(bud.shown), img = frameAt(KB, i), key = [i, W, H, loaded].join();
+  if (key === bud.key) return;
+  bud.key = key;
+  const c = bud.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
+  if (img) { const q = contain(1440, 800, { x: 0, y: 0, w: W, h: H }); c.drawImage(img, q.x, q.y, q.w, q.h); }
+}
+
+/* ---------- Copy helpers (clipboard can be blocked inside embeds) ---------- */
+async function copyText(text, status, ok, select) {
+  try { await navigator.clipboard.writeText(text); status.textContent = ok; }
+  catch { select(); status.textContent = 'Copying is blocked here. The text is selected: press Ctrl+C or ⌘C.'; }
+}
+$('#copy-brief').addEventListener('click', () => copyText($('#brief').value, $('#brief-status'), 'Brief copied. Paste it into an email or message to us.', () => {
+  $('details.brief').open = true; const t = $('#brief'); t.focus(); t.select();
+}));
+$('#copy-email').addEventListener('click', () => copyText(CONTACT.email, $('#email-status'), 'Email address copied.', () => {
+  const rg = document.createRange(); rg.selectNodeContents($('#email-text')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rg);
+}));
+$('#m-go').addEventListener('click', () => $('#summary').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }));
+
+/* ---------- Contact + prices from the config above ---------- */
+$('#email-text').textContent = CONTACT.email;
+$('#mail-link').href = 'mailto:' + CONTACT.email;
+if (CONTACT.whatsapp) { const a = $('#wa-link'); a.href = 'https://wa.me/' + CONTACT.whatsapp; a.hidden = false; $('#wa-brief').hidden = false; }
+if (CONTACT.instagram) { const a = $('#ig-link'); a.href = CONTACT.instagram; a.hidden = false; }
+const minRate = Math.min(...Object.values(TIERS).map(t => t.rate));
+$$('[data-price]').forEach(el => { el.textContent = el.dataset.price === 'tier' ? `From ${inr(minRate)} / sec` : `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec`; });
+$('#svc-fine').textContent = `Films longer than ${BASE_SEC} seconds get ${pct} off. Prices exclude taxes.`;
+
+/* ---------- Work: silent previews in view, full film with sound on click ---------- */
+const auto = !reduce && !(navigator.connection && navigator.connection.saveData);
+const previews = $$('.clip video');
+const inView = el => { const q = el.getBoundingClientRect(); return q.bottom > 0 && q.top < innerHeight; };
+if (auto && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()), { threshold: .3 });
+  previews.forEach(v => io.observe(v));
+}
+const lb = $('#lightbox'), lbv = $('#lb-video');
+$$('.clip-btn').forEach(b => b.addEventListener('click', () => {
+  previews.forEach(v => v.pause());
+  $('#lb-title').textContent = b.dataset.title;
+  lbv.src = b.dataset.src; lb.showModal(); lbv.play().catch(() => {});
+}));
+lb.addEventListener('close', () => {
+  lbv.pause(); lbv.removeAttribute('src'); lbv.load();
+  if (auto) previews.forEach(v => { if (inView(v)) v.play().catch(() => {}); });
+});
+$('#lb-close').addEventListener('click', () => lb.close());
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+
+/* ---------- Routes: #budget, #budget-premium, #budget-25, #budget-exclusive-60 ---------- */
+const home = $('#home'), view = $('#budget-view'), bar = $('#top-bar');
+function route() {
+  const h = location.hash.slice(1), m = h.match(/^budget(?:-(standard|premium|exclusive))?(?:-(\d+))?$/);
+  home.hidden = !!m; view.hidden = !m;
+  if (m) {
+    if (m[1]) $('#tier-' + m[1]).checked = true;
+    if (m[2]) $('#qty').value = m[2];
+    update(); scrollTo({ top: 0, behavior: 'instant' });
+  } else if (h === 'top') scrollTo({ top: 0, behavior: 'instant' });
+  else if (h) { const el = document.getElementById(h); if (el) requestAnimationFrame(() => el.scrollIntoView()); }
+}
+addEventListener('hashchange', route);
+
+function loop() {
+  if (!home.hidden) { tickKB(); tickEar(); } else tickBud();
+  bar.classList.toggle('solid', scrollY > 30 || !view.hidden);
+  requestAnimationFrame(loop);
+}
+update(); route(); pump(); loop();
+})();
+</script>
+
+</body>
+</html>
