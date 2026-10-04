@@ -1,4 +1,11 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+   <script>if(location.protocol==='http:')location.replace('https:'+location.href.slice(5))</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" type="image/png" href="favicon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Trizar.fx</title>
 <meta name="description" content="Trizar is a 3D studio for 3D animation, motion graphics and VFX.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -252,9 +259,11 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.clip:hover video{transform:none}}
 </style>
+</head>
+<body>
 
 <header class="top" id="top-bar">
-  <a class="brand" href="#top" aria-label="Trizar home"><img src="img/logo.webp" alt="Trizar" width="720" height="181"></a>
+  <a class="brand" href="#top" aria-label="Trizar home"><img src="logo.webp" alt="Trizar" width="720" height="181"></a>
   <nav aria-label="Main">
     <a href="#work">Work</a>
     <a href="#services">Services</a>
@@ -271,7 +280,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">3D animation · Motion graphics · VFX</p>
         <h1 class="display"><span class="wire">Wireframe</span> to final frame.</h1>
-        <p class="lede">Trizar is a 3D studio started by three founders: Hitarth Shah, Darshan Gilitwala and Dhruv Shetty. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
+        <p class="lede">Trizar is a 3D studio started by three co-founders. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
         <div class="row">
           <a class="btn" href="#budget">Estimate your budget</a>
           <a class="btn ghost" href="#work">See the work</a>
@@ -298,8 +307,8 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     </div>
     <div class="work-grid">
       <figure class="clip a">
-        <button class="clip-btn" type="button" data-src="work/keyboard.mp4" data-title="Keyboard, taken apart" aria-label="Play Keyboard, taken apart, with sound">
-          <video muted loop playsinline preload="none" poster="work/keyboard.jpg" src="work/keyboard.mp4"></video>
+        <button class="clip-btn" type="button" data-src="keyboard.mp4" data-title="Keyboard, taken apart" aria-label="Play Keyboard, taken apart, with sound">
+          <video muted loop playsinline preload="none" poster="keyboard.jpg" src="keyboard.mp4"></video>
           <span class="play mono">Play with sound</span>
         </button>
         <figcaption>
@@ -308,8 +317,8 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         </figcaption>
       </figure>
       <figure class="clip b">
-        <button class="clip-btn" type="button" data-src="work/phone.mp4" data-title="Phone hype teaser" aria-label="Play Phone hype teaser, with sound">
-          <video muted loop playsinline preload="none" poster="work/phone.jpg" src="work/phone.mp4"></video>
+        <button class="clip-btn" type="button" data-src="phone.mp4" data-title="Phone hype teaser" aria-label="Play Phone hype teaser, with sound">
+          <video muted loop playsinline preload="none" poster="phone.jpg" src="phone.mp4"></video>
           <span class="play mono">Play with sound</span>
         </button>
         <figcaption>
@@ -318,8 +327,8 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         </figcaption>
       </figure>
       <figure class="clip c">
-        <button class="clip-btn" type="button" data-src="work/earbuds.mp4" data-title="Earbuds feature film" aria-label="Play Earbuds feature film, with sound">
-          <video muted loop playsinline preload="none" poster="work/earbuds.jpg" src="work/earbuds.mp4"></video>
+        <button class="clip-btn" type="button" data-src="earbuds.mp4" data-title="Earbuds feature film" aria-label="Play Earbuds feature film, with sound">
+          <video muted loop playsinline preload="none" poster="earbuds.jpg" src="earbuds.mp4"></video>
           <span class="play mono">Play with sound</span>
         </button>
         <figcaption>
@@ -447,7 +456,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 </main>
 
 <footer class="foot wrap">
-  <img src="img/logo-stack.webp" alt="Trizar" width="360" height="414">
+  <img src="logo-stack.webp" alt="Trizar" width="360" height="414">
   <p>3D animation · Motion graphics · VFX</p>
   <p class="mono">© 2026 Trizar.fx</p>
 </footer>
@@ -502,13 +511,13 @@ function makeSeq(dir, n, per, w) {
   for (let st = 8; st >= 1; st >>= 1) for (let k = 0; k < strips; k += st) if (!seen.has(k)) { seen.add(k); s.order.push(k); }
   return s;
 }
-const KB = makeSeq('strip/kb', 125, 5, 1440), AP = makeSeq('strip/ap', 96, 6, 517);
+const KB = makeSeq('kb-', 125, 5, 1440), AP = makeSeq('ap-', 96, 6, 517);
 const queue = [...KB.order.map(k => [KB, k]), ...AP.order.map(k => [AP, k])];
 let qi = 0, active = 0, loaded = 0;
 function pump() {
   while (active < 4 && qi < queue.length) {
     const [s, k] = queue[qi++], im = new Image(); active++;
-    im.src = `${s.dir}/${String(k).padStart(2, '0')}.webp`;
+    im.src = `${s.dir}${String(k).padStart(2, '0')}.webp`;
     im.decode().then(() => { s.img[k] = im; loaded++; }, () => {}).finally(() => { active--; pump(); });
   }
 }
@@ -727,4 +736,5 @@ update(); route(); pump(); loop();
 })();
 </script>
 
-</body></html>
+</body>
+</html>
