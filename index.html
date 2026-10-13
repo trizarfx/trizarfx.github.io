@@ -476,9 +476,9 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 const CONTACT = { email: 'trizar.fx.anm@gmail.com', whatsapp: '', instagram: 'https://www.instagram.com/trizar.fx/' };
 // Part 1: 3D animation tiers (modelling included), price per second
 const TIERS = {
-  standard:  { name: 'Standard',  rate: 2699, desc: 'Rendering, lighting and a detailed model of your product.' },
-  premium:   { name: 'Premium',   rate: 2999, desc: 'Rendering, lighting and a detailed model of a complex product, with kitbashed background props.' },
-  exclusive: { name: 'Exclusive', rate: 3499, desc: 'Rendering, lighting and a detailed model of a complex product, with background props we model from scratch.' },
+  standard:  { name: 'Standard',  rate: 1499, desc: 'Rendering, lighting and a detailed model of your product.' },
+  premium:   { name: 'Premium',   rate: 1699, desc: 'Rendering, lighting and a detailed model of a complex product, with kitbashed background props.' },
+  exclusive: { name: 'Exclusive', rate: 1999, desc: 'Rendering, lighting and a detailed model of a complex product, with background props we model from scratch.' },
 };
 // Part 2: post-production, price per 15 seconds
 const ADDONS = [
@@ -640,6 +640,10 @@ function brief(s, r) {
   if (s.notes) L.push(`Notes: ${s.notes}`);
   return L.join('\n');
 }
+// cheapest and priciest possible estimates, so the keyboard spans its full range whatever the prices are
+const tierIds = Object.keys(TIERS).sort((a, b) => TIERS[a].rate - TIERS[b].rate);
+const BUD_LO = estimate({ tier: tierIds[0], sec: +$('#qty').min, addons: [] }).total;
+const BUD_HI = estimate({ tier: tierIds.at(-1), sec: +$('#qty').max, addons: ADDONS.map(a => a.id) }).total;
 const bud = { c: $('#bud-canvas'), shown: 30, target: 30, key: '' };
 bud.ctx = bud.c.getContext('2d');
 function update() {
@@ -656,7 +660,7 @@ function update() {
   $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + TIERS[s.tier].name + ', ' + s.sec + ' sec')}&body=${encodeURIComponent(b)}`;
   if (CONTACT.whatsapp) $('#wa-brief').href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(b)}`;
   // the keyboard comes further apart as the estimate grows
-  bud.target = 20 + clamp(Math.log(r.total / 36000) / Math.log(480000 / 36000)) * 104;
+  bud.target = 20 + clamp(Math.log(r.total / BUD_LO) / Math.log(BUD_HI / BUD_LO)) * 104;
 }
 calc.addEventListener('input', update);
 calc.addEventListener('change', update);
