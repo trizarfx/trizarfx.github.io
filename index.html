@@ -437,7 +437,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
       <p class="mono">The bigger the brief, the further it comes apart</p>
       <div>
         <p class="eyebrow">Estimated budget</p>
-        <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off">10% off</span></p>
+        <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off" id="t-off"></span></p>
       </div>
       <ul class="lines" id="t-lines"></ul>
       <p class="note" id="gst-note"></p>
@@ -486,14 +486,16 @@ const ADDONS = [
 ];
 const BASE_SEC = 15;   // prices are quoted for 15 seconds
 const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole estimate
-const GST = 0.18;      // added on top of the estimate, after the discount
+const GST = 0.18;      // added on top of the estimate, after the discounts
+// promo applied to every estimate, after the length discount. Set off: 0 to switch it off
+const PROMO = { code: 'ANGLEPROJECTS', off: 0.20 };
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const inr = v => '₹' + Math.round(v).toLocaleString('en-IN');
-const pct = Math.round(DISCOUNT * 100) + '%', gstPct = Math.round(GST * 100) + '%';
+const pct = Math.round(DISCOUNT * 100) + '%', gstPct = Math.round(GST * 100) + '%', promoPct = Math.round(PROMO.off * 100) + '%';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Estimate (pure) ---------- */
@@ -503,9 +505,10 @@ function estimate(s) {
   for (const a of ADDONS) if (s.addons.includes(a.id)) lines.push({ label: `${a.name}, ${s.sec} sec`, v: Math.round(a.per15 * s.sec / BASE_SEC) });
   const sub = lines.reduce((n, l) => n + l.v, 0);
   const off = s.sec > BASE_SEC ? Math.round(sub * DISCOUNT) : 0;
-  const net = sub - off, gst = Math.round(net * GST);
-  // was = what the same film would cost with GST but without the discount
-  return { lines, sub, off, net, gst, total: net + gst, was: sub + Math.round(sub * GST) };
+  const promo = Math.round((sub - off) * PROMO.off);
+  const net = sub - off - promo, gst = Math.round(net * GST);
+  // was = what the same film would cost with GST but without any discount
+  return { lines, sub, off, promo, net, gst, total: net + gst, was: sub + Math.round(sub * GST) };
 }
 
 /* ---------- Image sequences: frames packed side by side in strips; coarse strips load first ---------- */
@@ -636,7 +639,10 @@ function brief(s, r) {
   const L = ['Hi Trizar, here is a project brief from your budget calculator.', '',
     `3D animation tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
     ...ADDONS.map(a => `${a.name}: ${s.addons.includes(a.id) ? 'yes' : 'no'}`),
-    `Subtotal: ${inr(r.net)}${r.off ? ` after ${pct} off (${inr(r.sub)} before)` : ''}`,
+    `Before discounts: ${inr(r.sub)}`,
+    ...(r.off ? [`${pct} off, film longer than ${BASE_SEC} sec: −${inr(r.off)}`] : []),
+    ...(r.promo ? [`Code ${PROMO.code}, ${promoPct} off: −${inr(r.promo)}`] : []),
+    `Subtotal: ${inr(r.net)}`,
     `GST ${gstPct}: ${inr(r.gst)}`,
     `Estimate: ${inr(r.total)} including GST`];
   if (s.name || s.brand || s.notes) L.push('');
@@ -655,10 +661,12 @@ function update() {
   const s = readState(), r = estimate(s), b = brief(s, r);
   $('#qty-out').textContent = s.sec + ' sec';
   $('#t-total').textContent = inr(r.total);
-  $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = $('.total .off').hidden = !r.off;
+  $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = !(r.off || r.promo);
+  $('#t-off').textContent = `${PROMO.code} · ${promoPct} off`; $('#t-off').hidden = !r.promo;
   $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
     + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
              : `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>`)
+    + (r.promo ? `<li class="disc"><span>Code ${PROMO.code}, ${promoPct} off</span><span>−${inr(r.promo)}</span></li>` : '')
     + `<li class="sum"><span>Subtotal</span><span>${inr(r.net)}</span></li>`
     + `<li><span>GST ${gstPct}</span><span>+${inr(r.gst)}</span></li>`
     + `<li class="sum"><span>Total incl. GST</span><span>${inr(r.total)}</span></li>`;
@@ -701,7 +709,8 @@ if (CONTACT.whatsapp) { const a = $('#wa-link'); a.href = 'https://wa.me/' + CON
 if (CONTACT.instagram) { const a = $('#ig-link'); a.href = CONTACT.instagram; a.hidden = false; }
 const minRate = Math.min(...Object.values(TIERS).map(t => t.rate));
 $$('[data-price]').forEach(el => { el.textContent = el.dataset.price === 'tier' ? `From ${inr(minRate)} / sec` : `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec`; });
-$('#svc-fine').textContent = `Films longer than ${BASE_SEC} seconds get ${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
+$('#svc-fine').textContent = (PROMO.off ? `Every film gets ${promoPct} off with code ${PROMO.code}. ` : '')
+  + `Films longer than ${BASE_SEC} seconds get ${PROMO.off ? 'a further ' : ''}${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
 $('#gst-note').textContent = `Includes ${gstPct} GST, worked out on the price after any discount.`;
 
 /* ---------- Work: silent previews in view, full film with sound on click ---------- */
