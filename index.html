@@ -369,11 +369,12 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
   <section id="services" class="section wrap" aria-labelledby="svc-title">
     <div class="sec-head">
       <h2 class="display" id="svc-title"><span class="wire">What we</span> make</h2>
-      <p class="lede">Three services, one pipeline. 3D animation and motion graphics are priced by the second in the budget calculator; VFX is quoted per project.</p>
+      <p class="lede">Four services, one pipeline. 3D animation and motion graphics are priced by the second, 3D models by the package; VFX is quoted per project.</p>
     </div>
     <ul class="svc">
       <li><a href="#budget-standard"><h3>3D animation</h3><p>Product films, launch animations and exploded views. Modelling, lighting and rendering are included.</p><span class="price"><strong data-price="tier"></strong><span class="mono go">Estimate</span></span></a></li>
-      <li><a href="#budget"><h3>Motion graphics &amp; editing</h3><p>Motion graphics, video editing and SFX that turn a render sequence into a finished film.</p><span class="price"><strong data-price="addon"></strong><span class="mono go">Estimate</span></span></a></li>
+      <li><a href="#budget-models"><h3>3D models</h3><p>Detailed models of your products on their own, with no animation. Priced per package, from a single model to a complex range.</p><span class="price"><strong data-price="models"></strong><span class="mono go">Estimate</span></span></a></li>
+      <li><a href="#budget-anim"><h3>Motion graphics &amp; editing</h3><p>Motion graphics, video editing and SFX that turn a render sequence into a finished film.</p><span class="price"><strong data-price="addon"></strong><span class="mono go">Estimate</span></span></a></li>
       <li><a href="#contact"><h3>VFX &amp; CGI</h3><p>CG products and effects composited into live-action footage.</p><span class="price"><strong>Custom quote</strong><span class="mono go">Contact</span></span></a></li>
     </ul>
     <p class="fine" id="svc-fine"></p>
@@ -405,29 +406,38 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
   <div class="budget-head">
     <p class="eyebrow">Budget calculator</p>
     <h1 class="display"><span class="wire">Budget</span> breakdown</h1>
-    <p class="lede">Pick a tier and a length to see your price. It is an estimate: we confirm the final quote after a short call about your brief.</p>
+    <p class="lede">Choose animation or 3D models, then pick what fits to see your price. It is an estimate: we confirm the final quote after a short call about your brief.</p>
   </div>
   <div class="budget-grid">
     <form id="calc" class="steps" novalidate>
       <fieldset class="step">
-        <legend><span class="part">Part 1 · 3D animation</span>Choose a tier</legend>
+        <legend>What do you need?</legend>
+        <div class="choices" id="mode-choices"></div>
+      </fieldset>
+      <fieldset class="step" data-mode="anim">
+        <legend><span class="part">Animation · Part 1</span>Choose a tier</legend>
         <div class="choices tiers" id="tier-choices"></div>
       </fieldset>
-      <fieldset class="step">
+      <fieldset class="step" data-mode="anim">
         <legend id="qty-q">How long is the film?</legend>
         <div class="range"><input type="range" id="qty" name="qty" min="15" max="120" step="5" value="30" aria-labelledby="qty-q"><output id="qty-out" for="qty">30 sec</output></div>
         <p class="note">Priced per second of finished film, before GST.</p>
       </fieldset>
-      <fieldset class="step">
-        <legend><span class="part">Part 2 · Post-production</span>Finish it as a film</legend>
+      <fieldset class="step" data-mode="anim">
+        <legend><span class="part">Animation · Part 2 · Post-production</span>Finish it as a film</legend>
         <div class="choices one" id="addon-choices"></div>
+      </fieldset>
+      <fieldset class="step" data-mode="models" hidden>
+        <legend><span class="part">3D models only</span>Choose a package</legend>
+        <div class="choices tiers" id="model-choices"></div>
+        <p class="note">Fixed price per package, before GST. Modelling only, no animation or rendered film.</p>
       </fieldset>
       <fieldset class="step">
         <legend>About you <span class="note">(optional)</span></legend>
         <div class="fields">
           <label>Name<input id="f-name" autocomplete="name"></label>
           <label>Brand or company<input id="f-brand" autocomplete="organization"></label>
-          <label class="full">Anything else we should know?<textarea id="f-notes" rows="3" placeholder="Launch date, references, where the film will run"></textarea></label>
+          <label class="full">Anything else we should know?<textarea id="f-notes" rows="3" placeholder="Launch date, references, where it will be used"></textarea></label>
         </div>
       </fieldset>
     </form>
@@ -480,6 +490,12 @@ const TIERS = {
   premium:   { name: 'Premium',   rate: 1699, desc: 'Rendering, lighting and a detailed model of a complex product, with kitbashed background props.' },
   exclusive: { name: 'Exclusive', rate: 1999, desc: 'Rendering, lighting and a detailed model of a complex product, with background props we model from scratch.' },
 };
+// 3D models only (no animation): fixed price per package
+const MODELS = {
+  single:  { name: 'One model',       price: 9999,  desc: 'One product, modelled in detail.' },
+  multi:   { name: 'Multiple models', price: 12999, desc: 'More than one product, each modelled in detail.' },
+  complex: { name: 'Complex range',   price: 24999, desc: 'More products, or products that need complex modelling.' },
+};
 // Part 2: post-production, price per 15 seconds
 const ADDONS = [
   { id: 'mg', name: 'Motion graphics, video editing and SFX', per15: 6999, desc: 'We turn the render sequence into a finished film.', on: true },
@@ -488,7 +504,7 @@ const BASE_SEC = 15;   // prices are quoted for 15 seconds
 const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole estimate
 const GST = 0.18;      // added on top of the estimate, after the discounts
 // promo applied to every estimate, after the length discount. Set off: 0 to switch it off
-const PROMO = { code: 'ANGLEPROJECTS', off: 0.20 };
+const PROMO = { code: 'ANGLEPROJECTS', off: 0.20 }; // applies to animation and 3D models alike
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -499,15 +515,19 @@ const pct = Math.round(DISCOUNT * 100) + '%', gstPct = Math.round(GST * 100) + '
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Estimate (pure) ---------- */
+// s.mode is 'anim' (tier × seconds + post-production) or 'models' (one fixed-price package)
 function estimate(s) {
-  const t = TIERS[s.tier];
-  const lines = [{ label: `${t.name} 3D animation, ${s.sec} sec × ${inr(t.rate)}`, v: t.rate * s.sec }];
-  for (const a of ADDONS) if (s.addons.includes(a.id)) lines.push({ label: `${a.name}, ${s.sec} sec`, v: Math.round(a.per15 * s.sec / BASE_SEC) });
+  const lines = [], anim = s.mode !== 'models';
+  if (anim) {
+    const t = TIERS[s.tier];
+    lines.push({ label: `${t.name} 3D animation, ${s.sec} sec × ${inr(t.rate)}`, v: t.rate * s.sec });
+    for (const a of ADDONS) if (s.addons.includes(a.id)) lines.push({ label: `${a.name}, ${s.sec} sec`, v: Math.round(a.per15 * s.sec / BASE_SEC) });
+  } else lines.push({ label: `3D models only, ${MODELS[s.pkg].name.toLowerCase()}`, v: MODELS[s.pkg].price });
   const sub = lines.reduce((n, l) => n + l.v, 0);
-  const off = s.sec > BASE_SEC ? Math.round(sub * DISCOUNT) : 0;
+  const off = anim && s.sec > BASE_SEC ? Math.round(sub * DISCOUNT) : 0;
   const promo = Math.round((sub - off) * PROMO.off);
   const net = sub - off - promo, gst = Math.round(net * GST);
-  // was = what the same film would cost with GST but without any discount
+  // was = what the same project would cost with GST but without any discount
   return { lines, sub, off, promo, net, gst, total: net + gst, was: sub + Math.round(sub * GST) };
 }
 
@@ -621,6 +641,16 @@ function tickEar() {
 
 /* ---------- Budget calculator ---------- */
 const calc = $('#calc');
+const minRate = Math.min(...Object.values(TIERS).map(t => t.rate)), minModel = Math.min(...Object.values(MODELS).map(m => m.price));
+$('#mode-choices').innerHTML = [
+  ['anim', '3D animation', `From ${inr(minRate)}<small> / sec</small>`, 'A finished film of your product. Modelling, lighting and rendering included.'],
+  ['models', '3D models only', `From ${inr(minModel)}`, 'Detailed models of your products on their own, at a fixed price. No animation.'],
+].map(([id, name, price, desc], n) => `
+  <label class="choice"><input type="radio" name="mode" id="mode-${id}" value="${id}"${n ? '' : ' checked'}>
+  <span><b>${name}</b><strong>${price}</strong><small>${desc}</small></span></label>`).join('');
+$('#model-choices').innerHTML = Object.entries(MODELS).map(([id, m], n) => `
+  <label class="choice"><input type="radio" name="pkg" id="pkg-${id}" value="${id}"${n ? '' : ' checked'}>
+  <span><b>${m.name}</b><strong>${inr(m.price)}</strong><small>${m.desc}</small></span></label>`).join('');
 $('#tier-choices').innerHTML = Object.entries(TIERS).map(([id, t], n) => `
   <label class="choice"><input type="radio" name="tier" id="tier-${id}" value="${id}"${n ? '' : ' checked'}>
   <span><b>${t.name}</b><strong>${inr(t.rate)}<small> / sec</small></strong><small>${t.desc}</small></span></label>`).join('');
@@ -629,16 +659,20 @@ $('#addon-choices').innerHTML = ADDONS.map(a => `
   <span><b>${a.name}</b><strong>${inr(a.per15)}<small> / ${BASE_SEC} sec</small></strong><small>${a.desc}</small></span></label>`).join('');
 
 const readState = () => ({
+  mode: calc.elements.mode.value,
+  pkg: calc.elements.pkg.value,
   tier: calc.elements.tier.value,
   sec: +$('#qty').value,
   addons: ADDONS.filter(a => $('#addon-' + a.id).checked).map(a => a.id),
   name: $('#f-name').value.trim(), brand: $('#f-brand').value.trim(), notes: $('#f-notes').value.trim(),
 });
 function brief(s, r) {
-  const t = TIERS[s.tier];
+  const t = TIERS[s.tier], m = MODELS[s.pkg];
   const L = ['Hi Trizar, here is a project brief from your budget calculator.', '',
-    `3D animation tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
-    ...ADDONS.map(a => `${a.name}: ${s.addons.includes(a.id) ? 'yes' : 'no'}`),
+    ...(s.mode === 'models'
+      ? ['Service: 3D models only', `Package: ${m.name} (${inr(m.price)})`]
+      : ['Service: 3D animation', `Tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
+         ...ADDONS.map(a => `${a.name}: ${s.addons.includes(a.id) ? 'yes' : 'no'}`)]),
     `Before discounts: ${inr(r.sub)}`,
     ...(r.off ? [`${pct} off, film longer than ${BASE_SEC} sec: −${inr(r.off)}`] : []),
     ...(r.promo ? [`Code ${PROMO.code}, ${promoPct} off: −${inr(r.promo)}`] : []),
@@ -651,31 +685,37 @@ function brief(s, r) {
   if (s.notes) L.push(`Notes: ${s.notes}`);
   return L.join('\n');
 }
-// cheapest and priciest possible estimates, so the keyboard spans its full range whatever the prices are
+// cheapest and priciest estimate for each service, so the keyboard spans its full range whatever the prices are
 const tierIds = Object.keys(TIERS).sort((a, b) => TIERS[a].rate - TIERS[b].rate);
-const BUD_LO = estimate({ tier: tierIds[0], sec: +$('#qty').min, addons: [] }).total;
-const BUD_HI = estimate({ tier: tierIds.at(-1), sec: +$('#qty').max, addons: ADDONS.map(a => a.id) }).total;
+const pkgIds = Object.keys(MODELS).sort((a, b) => MODELS[a].price - MODELS[b].price);
+const RANGE = {
+  anim: [estimate({ mode: 'anim', tier: tierIds[0], sec: +$('#qty').min, addons: [] }).total,
+         estimate({ mode: 'anim', tier: tierIds.at(-1), sec: +$('#qty').max, addons: ADDONS.map(a => a.id) }).total],
+  models: [estimate({ mode: 'models', pkg: pkgIds[0] }).total, estimate({ mode: 'models', pkg: pkgIds.at(-1) }).total],
+};
 const bud = { c: $('#bud-canvas'), shown: 30, target: 30, key: '' };
 bud.ctx = bud.c.getContext('2d');
 function update() {
-  const s = readState(), r = estimate(s), b = brief(s, r);
+  const s = readState(), r = estimate(s), b = brief(s, r), anim = s.mode !== 'models';
+  $$('[data-mode]').forEach(f => { f.hidden = f.dataset.mode !== s.mode; });
   $('#qty-out').textContent = s.sec + ' sec';
   $('#t-total').textContent = inr(r.total);
   $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = !(r.off || r.promo);
   $('#t-off').textContent = `${PROMO.code} · ${promoPct} off`; $('#t-off').hidden = !r.promo;
   $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
     + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
-             : `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>`)
+             : anim ? `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>` : '')
     + (r.promo ? `<li class="disc"><span>Code ${PROMO.code}, ${promoPct} off</span><span>−${inr(r.promo)}</span></li>` : '')
     + `<li class="sum"><span>Subtotal</span><span>${inr(r.net)}</span></li>`
     + `<li><span>GST ${gstPct}</span><span>+${inr(r.gst)}</span></li>`
     + `<li class="sum"><span>Total incl. GST</span><span>${inr(r.total)}</span></li>`;
   $('#m-range').textContent = inr(r.total);
   $('#brief').value = b;
-  $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + TIERS[s.tier].name + ', ' + s.sec + ' sec')}&body=${encodeURIComponent(b)}`;
+  $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + (anim ? `${TIERS[s.tier].name} animation, ${s.sec} sec` : `3D models, ${MODELS[s.pkg].name}`))}&body=${encodeURIComponent(b)}`;
   if (CONTACT.whatsapp) $('#wa-brief').href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(b)}`;
   // the keyboard comes further apart as the estimate grows
-  bud.target = 20 + clamp(Math.log(r.total / BUD_LO) / Math.log(BUD_HI / BUD_LO)) * 104;
+  const [lo, hi] = RANGE[anim ? 'anim' : 'models'];
+  bud.target = 20 + clamp(Math.log(r.total / lo) / Math.log(hi / lo)) * 104;
 }
 calc.addEventListener('input', update);
 calc.addEventListener('change', update);
@@ -707,9 +747,9 @@ $('#email-text').textContent = CONTACT.email;
 $('#mail-link').href = 'mailto:' + CONTACT.email;
 if (CONTACT.whatsapp) { const a = $('#wa-link'); a.href = 'https://wa.me/' + CONTACT.whatsapp; a.hidden = false; $('#wa-brief').hidden = false; }
 if (CONTACT.instagram) { const a = $('#ig-link'); a.href = CONTACT.instagram; a.hidden = false; }
-const minRate = Math.min(...Object.values(TIERS).map(t => t.rate));
-$$('[data-price]').forEach(el => { el.textContent = el.dataset.price === 'tier' ? `From ${inr(minRate)} / sec` : `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec`; });
-$('#svc-fine').textContent = (PROMO.off ? `Every film gets ${promoPct} off with code ${PROMO.code}. ` : '')
+const priceText = { tier: `From ${inr(minRate)} / sec`, models: `From ${inr(minModel)}`, addon: `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec` };
+$$('[data-price]').forEach(el => { el.textContent = priceText[el.dataset.price]; });
+$('#svc-fine').textContent = (PROMO.off ? `Every project gets ${promoPct} off with code ${PROMO.code}. ` : '')
   + `Films longer than ${BASE_SEC} seconds get ${PROMO.off ? 'a further ' : ''}${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
 $('#gst-note').textContent = `Includes ${gstPct} GST, worked out on the price after any discount.`;
 
@@ -734,14 +774,22 @@ lb.addEventListener('close', () => {
 $('#lb-close').addEventListener('click', () => lb.close());
 lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
 
-/* ---------- Routes: #budget, #budget-premium, #budget-25, #budget-exclusive-60 ---------- */
+/* ---------- Routes: #budget, #budget-anim, #budget-premium, #budget-25, #budget-exclusive-60,
+   #budget-models, #budget-models-complex ---------- */
 const home = $('#home'), view = $('#budget-view'), bar = $('#top-bar');
+const own = (o, k) => Object.hasOwn(o, k);
 function route() {
-  const h = location.hash.slice(1), m = h.match(/^budget(?:-(standard|premium|exclusive))?(?:-(\d+))?$/);
-  home.hidden = !!m; view.hidden = !m;
+  const h = location.hash.slice(1), [head, ...parts] = h.split('-');
+  const m = head === 'budget' && parts.every(p => p === 'anim' || p === 'models' || own(TIERS, p) || own(MODELS, p) || /^\d+$/.test(p));
+  home.hidden = m; view.hidden = !m;
   if (m) {
-    if (m[1]) $('#tier-' + m[1]).checked = true;
-    if (m[2]) $('#qty').value = m[2];
+    for (const p of parts) {
+      if (p === 'models' || own(MODELS, p)) $('#mode-models').checked = true;
+      else $('#mode-anim').checked = true;
+      if (own(TIERS, p)) $('#tier-' + p).checked = true;
+      if (own(MODELS, p)) $('#pkg-' + p).checked = true;
+      if (/^\d+$/.test(p)) $('#qty').value = p;
+    }
     update(); scrollTo({ top: 0, behavior: 'instant' });
   } else if (h === 'top') scrollTo({ top: 0, behavior: 'instant' });
   else if (h) { const el = document.getElementById(h); if (el) requestAnimationFrame(() => el.scrollIntoView()); }
