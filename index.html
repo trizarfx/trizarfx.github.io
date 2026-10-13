@@ -280,7 +280,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
       <div class="hero-copy" id="hero-copy">
         <p class="eyebrow">3D animation · Motion graphics · VFX</p>
         <h1 class="display"><span class="wire">Wireframe</span> to final frame.</h1>
-        <p class="lede">Trizar is a 3D studio started by three co-founders. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
+        <p class="lede">Trizar is a 3D studio founded by Hitarth Shah, Darshan Gilitwala and Dhruv Shetty. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
         <div class="row">
           <a class="btn" href="#budget">Estimate your budget</a>
           <a class="btn ghost" href="#work">See the work</a>
@@ -416,7 +416,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
       <fieldset class="step">
         <legend id="qty-q">How long is the film?</legend>
         <div class="range"><input type="range" id="qty" name="qty" min="15" max="120" step="5" value="30" aria-labelledby="qty-q"><output id="qty-out" for="qty">30 sec</output></div>
-        <p class="note">Priced per second of finished film.</p>
+        <p class="note">Priced per second of finished film, before GST.</p>
       </fieldset>
       <fieldset class="step">
         <legend><span class="part">Part 2 · Post-production</span>Finish it as a film</legend>
@@ -440,7 +440,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off">10% off</span></p>
       </div>
       <ul class="lines" id="t-lines"></ul>
-      <p class="note">Prices exclude taxes.</p>
+      <p class="note" id="gst-note"></p>
       <div class="sum-actions">
         <div class="row">
           <button class="btn" type="button" id="copy-brief">Copy brief</button>
@@ -486,13 +486,14 @@ const ADDONS = [
 ];
 const BASE_SEC = 15;   // prices are quoted for 15 seconds
 const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole estimate
+const GST = 0.18;      // added on top of the estimate, after the discount
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), lerp = (a, b, t) => a + (b - a) * t;
 const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
 const inr = v => '₹' + Math.round(v).toLocaleString('en-IN');
-const pct = Math.round(DISCOUNT * 100) + '%';
+const pct = Math.round(DISCOUNT * 100) + '%', gstPct = Math.round(GST * 100) + '%';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Estimate (pure) ---------- */
@@ -502,7 +503,9 @@ function estimate(s) {
   for (const a of ADDONS) if (s.addons.includes(a.id)) lines.push({ label: `${a.name}, ${s.sec} sec`, v: Math.round(a.per15 * s.sec / BASE_SEC) });
   const sub = lines.reduce((n, l) => n + l.v, 0);
   const off = s.sec > BASE_SEC ? Math.round(sub * DISCOUNT) : 0;
-  return { lines, sub, off, total: sub - off };
+  const net = sub - off, gst = Math.round(net * GST);
+  // was = what the same film would cost with GST but without the discount
+  return { lines, sub, off, net, gst, total: net + gst, was: sub + Math.round(sub * GST) };
 }
 
 /* ---------- Image sequences: frames packed side by side in strips; coarse strips load first ---------- */
@@ -633,7 +636,9 @@ function brief(s, r) {
   const L = ['Hi Trizar, here is a project brief from your budget calculator.', '',
     `3D animation tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
     ...ADDONS.map(a => `${a.name}: ${s.addons.includes(a.id) ? 'yes' : 'no'}`),
-    `Estimate: ${inr(r.total)}${r.off ? ` after ${pct} off (${inr(r.sub)} before)` : ''}, excluding taxes`];
+    `Subtotal: ${inr(r.net)}${r.off ? ` after ${pct} off (${inr(r.sub)} before)` : ''}`,
+    `GST ${gstPct}: ${inr(r.gst)}`,
+    `Estimate: ${inr(r.total)} including GST`];
   if (s.name || s.brand || s.notes) L.push('');
   if (s.name) L.push(`Name: ${s.name}`);
   if (s.brand) L.push(`Brand: ${s.brand}`);
@@ -650,11 +655,13 @@ function update() {
   const s = readState(), r = estimate(s), b = brief(s, r);
   $('#qty-out').textContent = s.sec + ' sec';
   $('#t-total').textContent = inr(r.total);
-  $('#t-sub').textContent = inr(r.sub); $('#t-sub').hidden = $('.total .off').hidden = !r.off;
+  $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = $('.total .off').hidden = !r.off;
   $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
     + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
              : `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>`)
-    + `<li class="sum"><span>Total</span><span>${inr(r.total)}</span></li>`;
+    + `<li class="sum"><span>Subtotal</span><span>${inr(r.net)}</span></li>`
+    + `<li><span>GST ${gstPct}</span><span>+${inr(r.gst)}</span></li>`
+    + `<li class="sum"><span>Total incl. GST</span><span>${inr(r.total)}</span></li>`;
   $('#m-range').textContent = inr(r.total);
   $('#brief').value = b;
   $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + TIERS[s.tier].name + ', ' + s.sec + ' sec')}&body=${encodeURIComponent(b)}`;
@@ -694,7 +701,8 @@ if (CONTACT.whatsapp) { const a = $('#wa-link'); a.href = 'https://wa.me/' + CON
 if (CONTACT.instagram) { const a = $('#ig-link'); a.href = CONTACT.instagram; a.hidden = false; }
 const minRate = Math.min(...Object.values(TIERS).map(t => t.rate));
 $$('[data-price]').forEach(el => { el.textContent = el.dataset.price === 'tier' ? `From ${inr(minRate)} / sec` : `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec`; });
-$('#svc-fine').textContent = `Films longer than ${BASE_SEC} seconds get ${pct} off. Prices exclude taxes.`;
+$('#svc-fine').textContent = `Films longer than ${BASE_SEC} seconds get ${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
+$('#gst-note').textContent = `Includes ${gstPct} GST, worked out on the price after any discount.`;
 
 /* ---------- Work: silent previews in view, full film with sound on click ---------- */
 const auto = !reduce && !(navigator.connection && navigator.connection.saveData);
