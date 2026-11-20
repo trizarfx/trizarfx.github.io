@@ -142,14 +142,8 @@ p{margin:0}
 .clip-btn{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .clip-btn.tilt{transition:transform .12s linear}
 
-/* Scroll stage */
-.scrolly{position:relative}
-#ear{height:330vh}
-.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
-.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .touch-only{display:none}
 @media (hover:none){.mouse-only{display:none}.touch-only{display:inline}}
-.counter{position:absolute;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0;right:var(--gut);font-variant-numeric:tabular-nums}
 
 /* Studio */
 .about-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(32px,5vw,80px);align-items:start}
@@ -177,26 +171,7 @@ p{margin:0}
 @media (max-width:900px){.about-grid{grid-template-columns:1fr}.pillars{grid-template-columns:1fr}.process{grid-template-columns:1fr 1fr;gap:36px 14px}.process::before,.process::after{display:none}}
 @media (max-width:520px){.process{grid-template-columns:1fr}}
 
-.ear-stage{background:radial-gradient(40% 50% at 28% 55%,rgb(247 238 242 / .06),transparent 70%)}
-.beats{position:absolute;z-index:2;left:52%;right:var(--gut);top:50%;translate:0 -50%;max-width:540px;display:grid;padding-left:36px}
-.beat{grid-area:1/1;display:grid;gap:16px;align-content:start;opacity:0;translate:0 18px;transition:opacity .45s,translate .45s}
-.beat.on{opacity:1;translate:0 0}
-.beat h2.display{font-size:clamp(28px,3.2vw,50px)}
-.beat .body{color:var(--mute);max-width:44ch}
-.rail{position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--line)}
-.rail i{display:block;width:100%;height:calc(var(--p,0) * 100%);background:var(--signal)}
-.rail b{position:absolute;left:-5px;width:12px;height:12px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 2px var(--line);transition:background .3s,box-shadow .3s}
-.rail b.on{background:var(--signal);box-shadow:inset 0 0 0 2px var(--signal)}
-
-@media (max-width:899px){
-  #ear{height:300vh}
-  .hero h1.display{font-size:clamp(38px,11vw,64px)}
-  .beats{left:var(--gut);right:var(--gut);top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));translate:none;padding:18px 0 0;
-    background:linear-gradient(transparent,var(--ink) 30%)}
-  .beat h2.display{font-size:clamp(24px,7.4vw,36px)}
-  .beat .body{font-size:14px}
-  .rail{display:none}
-}
+@media (max-width:899px){.hero h1.display{font-size:clamp(38px,11vw,64px)}}
 
 /* Sections */
 .section{padding-block:clamp(88px,11vw,160px)}
@@ -205,8 +180,8 @@ p{margin:0}
 
 /* Work */
 .work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-areas:"a c" "b c"}
-/* second row: two 9:16 films and a square one, sized so all three share one height */
-.work-row{display:grid;gap:14px;margin-top:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.78fr)}
+/* second row: a 9:16 film and a square one, sized so both share one height */
+.work-row{display:grid;gap:14px;margin-top:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.78fr)}
 .clip.v .clip-btn{aspect-ratio:9/16}
 .clip.sq .clip-btn{aspect-ratio:1}
 .clip{position:relative;margin:0;display:flex;flex-direction:column}
@@ -303,6 +278,36 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .foot img,.foot-logo{width:120px;height:auto;display:block}
 .foot p{color:var(--mute);font-size:14px}
 
+/* Reviews: approved client reviews as glass cards, and a form that sends a new one to the studio */
+.reviews{position:relative;border-top:1px solid var(--line)}
+.rev-summary{display:grid;gap:8px;justify-items:start}
+.rev-avg{display:flex;align-items:baseline;gap:14px;font:850 clamp(40px,5vw,72px)/1 var(--display);font-stretch:112%}
+.rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px;margin-bottom:clamp(40px,5vw,72px)}
+.review{display:grid;gap:14px;align-content:start;padding:clamp(22px,2vw,28px);border-radius:24px;
+  background:linear-gradient(150deg,rgb(255 255 255 / .08),rgb(255 255 255 / .02));box-shadow:inset 0 1px 0 rgb(255 255 255 / .2),inset 0 0 0 1px rgb(255 255 255 / .08)}
+.review blockquote{margin:0;font-size:16px;line-height:1.6;color:var(--bone)}
+.review footer{display:flex;align-items:center;gap:12px}
+.review footer i{width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:50%;font:850 15px/1 var(--display);font-style:normal;color:var(--signal);box-shadow:inset 0 0 0 1.5px var(--signal)}
+.review footer b{display:block;font-weight:700}
+.stars{color:var(--signal);letter-spacing:3px;font-size:17px;line-height:1}
+.stars .off{color:#3a3035}
+.rev-empty{grid-column:1/-1;display:grid;gap:6px;justify-items:center;text-align:center;padding:clamp(28px,4vw,48px);border-radius:24px;border:1.5px dashed var(--line);color:var(--mute)}
+.rev-empty b{color:var(--bone);font:800 clamp(18px,1.8vw,24px)/1.2 var(--display);font-stretch:112%}
+.rev-form{display:grid;gap:22px;max-width:780px;padding:clamp(22px,3vw,36px);border-radius:28px;
+  background:linear-gradient(150deg,rgb(255 255 255 / .07),rgb(255 255 255 / .015));box-shadow:inset 0 1px 0 rgb(255 255 255 / .18),inset 0 0 0 1px rgb(255 255 255 / .08)}
+.rev-form h3{font:850 clamp(20px,2.2vw,30px)/1.05 var(--display);font-stretch:125%;text-transform:uppercase}
+.rev-form .note{margin-top:8px}
+.stars-in{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;border:0;padding:0;margin:0}
+.stars-in legend{float:left;margin-right:12px;font-size:13px;color:var(--mute)}
+.stars-in label{position:relative;cursor:pointer;font-size:36px;line-height:1;color:#3a3035;transition:color .15s,transform .2s cubic-bezier(.2,.8,.2,1)}
+.stars-in label.on{color:var(--signal)}
+.stars-in label:hover{transform:scale(1.15)}
+.stars-in input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.stars-in label:has(input:focus-visible){outline:2px solid var(--bone);outline-offset:2px;border-radius:4px}
+.stars-in output{margin-left:10px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.count{justify-self:end;font:500 11px/1 var(--mono);color:var(--ash)}
+.fields .bad{border-color:var(--signal)}
+
 /* Budget view */
 .budget{padding-block:calc(var(--head) + clamp(40px,6vw,80px)) 120px}
 .budget-head{display:grid;gap:18px;max-width:760px;margin-bottom:clamp(40px,5vw,64px)}
@@ -398,6 +403,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     <a href="#work">Work</a>
     <a href="#services">Services</a>
     <a href="#contact">Contact</a>
+    <a href="#reviews">Reviews</a>
   </nav>
   <a class="btn sm" href="#budget">Get an estimate</a>
   <i class="progress" id="progress" aria-hidden="true"></i>
@@ -510,16 +516,6 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
           <a class="link" href="#budget-20">Price a film like this</a>
         </figcaption>
       </figure>
-      <figure class="clip v">
-        <button class="clip-btn" type="button" data-src="earbuds.mp4" data-title="Earbuds feature film" aria-label="Play Earbuds feature film, with sound">
-          <video muted loop playsinline preload="none" poster="earbuds.jpg" src="earbuds.mp4"></video>
-          <span class="play mono">Play with sound</span>
-        </button>
-        <figcaption>
-          <div><h3>Earbuds feature film</h3><p class="mono">3D animation · 0:26</p></div>
-          <a class="link" href="#budget-25">Price a film like this</a>
-        </figcaption>
-      </figure>
       <figure class="clip sq">
         <button class="clip-btn" type="button" data-src="work/desk.mp4" data-title="Even this is 3D" aria-label="Play Even this is 3D, with sound">
           <video muted loop playsinline preload="none" poster="work/desk.jpg" src="work/desk.mp4"></video>
@@ -537,32 +533,6 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         <a class="link" href="https://www.instagram.com/trizar.fx/" target="_blank" rel="noopener">Follow @trizar.fx</a>
       </div>
       <div class="ig-grid" id="ig-grid"></div>
-    </div>
-  </section>
-
-  <!-- 3. Earbuds: scroll builds it up -->
-  <section id="ear" class="scrolly" aria-label="Earbuds render">
-    <div class="stage ear-stage">
-      <canvas id="ear-canvas" role="img" aria-label="An earbuds charging case opens and the two buds drop into place as you scroll"></canvas>
-      <div class="beats" id="beats">
-        <div class="rail" aria-hidden="true"><i></i><b style="top:0"></b><b style="top:calc(50% - 6px)"></b><b style="bottom:0"></b></div>
-        <article class="beat on">
-          <p class="eyebrow">Materials</p>
-          <h2 class="display"><span class="wire">Surfaces</span> that read true</h2>
-          <p class="body">Gloss plastic, brushed metal, soft silicone. We light every surface so it looks like the real product, only better.</p>
-        </article>
-        <article class="beat">
-          <p class="eyebrow">Motion</p>
-          <h2 class="display"><span class="wire">Every move</span> explains something</h2>
-          <p class="body">The lid opens, the buds drop in, the case settles. Each shot shows the product the way a customer will use it.</p>
-        </article>
-        <article class="beat">
-          <p class="eyebrow">Delivery</p>
-          <h2 class="display"><span class="wire">Made for</span> the scroll</h2>
-          <p class="body">You are scrubbing through our render frames right now. We can deliver the same sequence for your product page, plus cuts for Reels, Shorts and ads.</p>
-        </article>
-      </div>
-      <p class="counter mono" id="ear-counter">Frame 289 / 480</p>
     </div>
   </section>
 
@@ -600,6 +570,29 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         <a class="btn ghost" id="ig-link" href="#contact" target="_blank" rel="noopener" hidden>Instagram</a>
       </div>
     </div>
+  </section>
+
+  <!-- 6. Reviews -->
+  <section id="reviews" class="section wrap reviews" aria-labelledby="rev-title">
+    <div class="sec-head">
+      <h2 class="display" id="rev-title"><span class="wire">Client</span> reviews</h2>
+      <div class="rev-summary" id="rev-summary"></div>
+    </div>
+    <div class="rev-grid" id="rev-grid"></div>
+    <form class="rev-form" id="rev-form" novalidate>
+      <div><h3>Worked with us? Leave a review</h3><p class="note">Your review goes to the studio first and appears here once it's approved, usually within a day.</p></div>
+      <fieldset class="stars-in" id="rev-stars"><legend>Your rating</legend><output id="rev-stars-out">Pick a rating</output></fieldset>
+      <div class="fields">
+        <label>Your name<input id="rv-name" autocomplete="name" maxlength="60" required></label>
+        <label>Brand or company (optional)<input id="rv-brand" autocomplete="organization" maxlength="60"></label>
+        <label class="full">Your review<textarea id="rv-text" rows="4" maxlength="500" required placeholder="What did we make for you, and how did it go?"></textarea><span class="count" id="rv-count">0 / 500</span></label>
+      </div>
+      <div class="row">
+        <button class="btn" type="submit" id="rv-wa">Send on WhatsApp</button>
+        <button class="btn ghost" type="button" id="rv-mail">Send by email</button>
+      </div>
+      <p class="status" id="rv-status" role="status"></p>
+    </form>
   </section>
 </main>
 
@@ -738,15 +731,17 @@ const SERVICES = [
 // Instagram posts shown under Selected work, in this order. id = the code in the post's link
 // (instagram.com/reel/<id>/ or /p/<id>/). Empty list = section hidden.
 const INSTAGRAM = [
-  { id: 'DeAeyl9tcKO', title: 'AirPods Pro 3', type: '3D commercial · Concept' },
   { id: 'DenBwESl1EL', title: 'Tesla Roadster renders', type: '3D stills · Maya + Arnold' },
 ];
 // Films in the hero stack, front first. Vertical (9:16) films look best here.
 const REEL = [
   { src: 'work/casio.mp4', poster: 'work/casio.jpg', title: 'Casio, after dark', meta: 'Product animation · Concept' },
   { src: 'work/roadster.mp4', poster: 'work/roadster.jpg', title: 'Tesla Roadster', meta: '3D animation · Concept' },
-  { src: 'earbuds.mp4', poster: 'earbuds.jpg', title: 'Earbuds feature film', meta: '3D animation' },
+  { src: 'work/desk.mp4', poster: 'work/desk.jpg', title: 'Even this is 3D', meta: 'CGI · Photoreal' },
 ];
+// Approved client reviews shown on the site, newest first. Add one only with the client's OK, in their words:
+// { name: 'Full name', brand: 'Company (optional)', stars: 5, text: 'What they said', date: 'Nov 2026' }
+const REVIEWS = [];
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -774,31 +769,6 @@ function estimate(s) {
   return { lines, sub, off, promo, net, gst, total: net + gst, was: sub + Math.round(sub * GST) };
 }
 
-/* ---------- Image sequences: frames packed side by side in strips; coarse strips load first ---------- */
-function makeSeq(dir, n, per, w) {
-  const s = { dir, n, per, w, img: [], order: [] }, seen = new Set(), strips = Math.ceil(n / per);
-  for (let st = 8; st >= 1; st >>= 1) for (let k = 0; k < strips; k += st) if (!seen.has(k)) { seen.add(k); s.order.push(k); }
-  return s;
-}
-const AP = makeSeq('ap-', 96, 6, 517);
-const queue = AP.order.map(k => [AP, k]);
-let qi = 0, active = 0, loaded = 0;
-function pump() {
-  while (active < 4 && qi < queue.length) {
-    const [s, k] = queue[qi++], im = new Image(); active++;
-    im.src = `${s.dir}${String(k).padStart(2, '0')}.webp`;
-    im.decode().then(() => { s.img[k] = im; loaded++; }, () => {}).finally(() => { active--; pump(); });
-  }
-}
-// nearest loaded frame to i, as [strip image, x offset of that frame inside the strip]
-function frameAt(s, i) {
-  for (let d = 0; d < s.n; d++) for (const j of [i - d, i + d]) {
-    const im = j >= 0 && j < s.n && s.img[Math.floor(j / s.per)];
-    if (im) return [im, (j % s.per) * s.w];
-  }
-  return null;
-}
-
 function fit(c) {
   const r = c.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2), w = Math.round(r.width * d), h = Math.round(r.height * d);
   if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
@@ -807,37 +777,6 @@ function fit(c) {
 const contain = (sw, sh, b) => { const k = Math.min(b.w / sw, b.h / sh); return { x: b.x + (b.w - sw * k) / 2, y: b.y + (b.h - sh * k) / 2, w: sw * k, h: sh * k, k }; };
 const mix = (a, b, t) => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) });
 const prog = el => { const r = el.getBoundingClientRect(); return { r, p: clamp(-r.top / (r.height - innerHeight)) }; };
-
-/* ---------- Earbuds case opens, buds drop in ---------- */
-const ear = { sec: $('#ear'), c: $('#ear-canvas'), shown: 0, key: '' };
-ear.ctx = ear.c.getContext('2d');
-const beats = $$('.beat'), rail = $('.rail'), railNodes = $$('.rail b'), earCounter = $('#ear-counter');
-function tickEar() {
-  const { r, p } = prog(ear.sec); if (r.bottom < 0 || r.top > innerHeight) return;
-  const { W, H, d } = fit(ear.c), wide = W >= 900;
-  const target = clamp((p - .04) / .8) * 95;
-  ear.shown = reduce ? target : lerp(ear.shown, target, .18);
-  const i = Math.round(ear.shown), img = frameAt(AP, i);
-  const dst = contain(517, 1100, wide ? { x: W * .05, y: H * .1, w: W * .44, h: H * .86 } : { x: 0, y: H * .09, w: W, h: H * .56 });
-  const key = [i, W, H, loaded].join();
-  if (key !== ear.key) {
-    ear.key = key;
-    const c = ear.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
-    if (img) {
-      c.drawImage(img[0], img[1], 0, 517, 1100, dst.x, dst.y, dst.w, dst.h);
-      // the buds enter from the top edge of the render: fade that edge out
-      c.globalCompositeOperation = 'destination-out';
-      const g = c.createLinearGradient(0, dst.y, 0, dst.y + dst.h * .16);
-      g.addColorStop(0, '#000'); g.addColorStop(1, 'rgba(0,0,0,0)');
-      c.fillStyle = g; c.fillRect(dst.x, dst.y, dst.w, dst.h * .16);
-      c.globalCompositeOperation = 'source-over';
-    }
-  }
-  const k = p < .36 ? 0 : p < .68 ? 1 : 2;
-  beats.forEach((b, j) => b.classList.toggle('on', j === k));
-  rail.style.setProperty('--p', p.toFixed(3)); railNodes.forEach((n, j) => n.classList.toggle('on', j <= k));
-  earCounter.textContent = `Frame ${289 + i} / 480`;
-}
 
 /* ---------- Budget calculator ---------- */
 const calc = $('#calc');
@@ -1023,6 +962,49 @@ $('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scop
   } else load();
 })();
 
+/* ---------- Reviews: show the approved ones; a new review is sent to the studio on WhatsApp or by email ---------- */
+(() => {
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const starRow = n => `<span class="stars" aria-label="${n} out of 5 stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
+  const grid = $('#rev-grid'), sum = $('#rev-summary');
+  if (REVIEWS.length) {
+    const avg = REVIEWS.reduce((t, r) => t + r.stars, 0) / REVIEWS.length;
+    sum.innerHTML = `<p class="rev-avg">${avg.toFixed(1)} ${starRow(Math.round(avg))}</p><p class="mono">${REVIEWS.length} review${REVIEWS.length === 1 ? '' : 's'} from clients</p>`;
+    grid.innerHTML = REVIEWS.map(r => `<article class="review">${starRow(r.stars)}<blockquote>${esc(r.text)}</blockquote>
+      <footer><i aria-hidden="true">${esc(r.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase())}</i><div><b>${esc(r.name)}</b><span class="mono">${esc([r.brand, r.date].filter(Boolean).join(' · '))}</span></div></footer></article>`).join('');
+  } else {
+    sum.innerHTML = '<p class="lede">What clients say about working with the studio, in their own words.</p>';
+    grid.innerHTML = '<div class="rev-empty"><b>No reviews yet</b><span>Worked with Trizar? Be the first to share how it went.</span></div>';
+  }
+  // star picker: hover previews, click sets
+  const box = $('#rev-stars'), out = $('#rev-stars-out');
+  out.insertAdjacentHTML('beforebegin', [1, 2, 3, 4, 5].map(n => `<label title="${n} star${n > 1 ? 's' : ''}"><input type="radio" name="rv-stars" value="${n}" aria-label="${n} star${n > 1 ? 's' : ''}">★</label>`).join(''));
+  const labels = $$('label', box), words = ['', 'Poor', 'Fair', 'Good', 'Great', 'Excellent'];
+  let rating = 0;
+  const paint = n => labels.forEach((l, i) => l.classList.toggle('on', i < n));
+  labels.forEach((l, i) => {
+    l.addEventListener('pointerenter', () => paint(i + 1));
+    l.querySelector('input').addEventListener('change', () => { rating = i + 1; paint(rating); out.textContent = `${rating} / 5 · ${words[rating]}`; });
+  });
+  box.addEventListener('pointerleave', () => paint(rating));
+  const name = $('#rv-name'), brand = $('#rv-brand'), text = $('#rv-text'), status = $('#rv-status');
+  text.addEventListener('input', () => { $('#rv-count').textContent = `${text.value.length} / 500`; });
+  function compose() {
+    [name, text].forEach(f => f.classList.toggle('bad', !f.value.trim()));
+    if (!rating || !name.value.trim() || !text.value.trim()) { status.textContent = 'Please add a rating, your name and a few words about the project.'; return null; }
+    return ['New review for Trizar', '', `Rating: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)`, `Name: ${name.value.trim()}`,
+      ...(brand.value.trim() ? [`Brand: ${brand.value.trim()}`] : []), '', text.value.trim()].join('\n');
+  }
+  const sent = () => { status.textContent = 'Thank you! Your review has gone to the studio and will appear here once it is approved.'; };
+  $('#rev-form').addEventListener('submit', e => {
+    e.preventDefault(); const msg = compose(); if (!msg) return;
+    if (CONTACT.whatsapp) { window.open(`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener'); sent(); }
+    else { location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Review for Trizar')}&body=${encodeURIComponent(msg)}`; sent(); }
+  });
+  $('#rv-mail').addEventListener('click', () => { const msg = compose(); if (!msg) return; location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Review for Trizar')}&body=${encodeURIComponent(msg)}`; sent(); });
+  if (!CONTACT.whatsapp) $('#rv-wa').textContent = 'Send review';
+})();
+
 /* ---------- Footer: the logo animation loops while the footer is on screen ---------- */
 (() => {
   const v = $('.foot-logo'); if (!v || reduce) return;
@@ -1138,7 +1120,7 @@ const REELM = (() => {
 
 /* ---------- Scroll reveal: sections, cards and tiles rise in as they come into view ---------- */
 (() => {
-  const groups = ['.sec-head', '.about-copy', '.founder', '.pillar', '.process li', '.work-grid .clip', '.work-row .clip', '.svc-card', '.fine', '.ig-head', '.ig-item', '.contact-in > *', '.foot > *'];
+  const groups = ['.sec-head', '.about-copy', '.founder', '.pillar', '.process li', '.work-grid .clip', '.work-row .clip', '.svc-card', '.fine', '.ig-head', '.ig-item', '.contact-in > *', '.review', '.rev-empty', '.rev-form', '.foot > *'];
   const els = [];
   for (const sel of groups) $$(sel).forEach(el => {
     const sibs = [...el.parentElement.children].filter(c => c.matches(sel));
@@ -1223,12 +1205,12 @@ function route() {
 addEventListener('hashchange', route);
 
 function loop() {
-  if (!home.hidden) { REELM.tick(performance.now()); tickEar(); }
+  if (!home.hidden) REELM.tick(performance.now());
   $('#progress').style.transform = `scaleX(${home.hidden ? 0 : clamp(scrollY / (document.documentElement.scrollHeight - innerHeight || 1)).toFixed(4)})`;
   bar.classList.toggle('solid', scrollY > 30 || !view.hidden);
   requestAnimationFrame(loop);
 }
-update(); route(); pump(); loop();
+update(); route(); loop();
 })();
 </script>
 
