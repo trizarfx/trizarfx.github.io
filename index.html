@@ -3,6 +3,7 @@
 <head>
    <script>if(location.protocol==='http:')location.replace('https:'+location.href.slice(5))</script>
 <meta charset="utf-8">
+<script>document.documentElement.classList.add('js');setTimeout(function(){document.documentElement.classList.add('ready')},8000)</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" type="image/png" href="favicon.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -69,34 +70,76 @@ p{margin:0}
 .top nav a:hover{color:var(--bone)}
 @media (max-width:760px){.top nav{display:none}.top .btn{margin-left:auto}}
 
-/* Hero: type-led, the logo's beam crosses behind it, a ticker of everything we make runs along the bottom */
+/* Hero: copy on the left, a fanned stack of the studio's films on the right that follows the cursor */
 .hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:24px;box-sizing:border-box;
-  padding-block:calc(var(--head) + 4vh) 120px;overflow:hidden;
-  background:radial-gradient(45% 55% at 74% 46%,rgb(255 46 126 / .1),transparent 70%)}
+  padding-block:calc(var(--head) + 4vh) 64px;overflow:hidden}
+.hero-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(38% 46% at var(--gx,72%) var(--gy,46%),rgb(255 46 126 / .14),transparent 70%)}
 .hero-copy{position:relative;z-index:2;display:grid;gap:26px}
-/* Interactive logo: tilt with the cursor, drag to spin, switch it from wireframe to clay to final render */
-.ring{position:relative;z-index:1;display:grid;gap:14px;justify-items:center}
-.ring canvas{width:100%;max-width:640px;aspect-ratio:1;display:block;cursor:grab;touch-action:pan-y}
-.ring canvas:active{cursor:grabbing}
-.ring-modes{display:flex;flex-wrap:wrap;justify-content:center;gap:0;box-shadow:inset 0 0 0 1px var(--line)}
-.ring-modes button{background:none;border:0;cursor:pointer;padding:11px 16px;color:var(--mute);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:background .2s,color .2s}
-.ring-modes button b{color:var(--signal);font-weight:500;margin-right:8px}
-.ring-modes button:hover{color:var(--bone)}
-.ring-modes button[aria-pressed="true"]{background:var(--signal);color:var(--signal-ink)}
-.ring-modes button[aria-pressed="true"] b{color:var(--signal-ink)}
-.ring-hint{margin:0;text-align:center}
-.hero h1.display{font-size:clamp(40px,5.6vw,104px);line-height:.9}
+.hero h1.display{font-size:clamp(40px,5.6vw,104px);line-height:.92}
 .hero .lede{max-width:60ch}
 .hero-facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:4px}
 .hero-facts span{display:flex;align-items:center;gap:10px}
 .hero-facts span::before{content:"";width:8px;height:8px;rotate:45deg;background:var(--signal)}
-.ticker{position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:2;overflow:hidden;
-  border-block:1px solid var(--line);padding-block:14px;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-.ticker div{display:flex;width:max-content;animation:tick 90s linear infinite}
-.ticker span{font:800 clamp(14px,1.3vw,18px)/1 var(--display);font-stretch:112%;text-transform:uppercase;white-space:nowrap;padding-right:28px;display:flex;align-items:center;gap:28px;color:var(--mute)}
-.ticker span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal)}
-@keyframes tick{to{transform:translateX(-50%)}}
-@media (max-width:899px){.hero{grid-template-columns:1fr;padding-bottom:110px}.ring canvas{max-width:420px}}
+.reel{position:relative;z-index:1;height:min(76vh,700px);display:grid;align-content:end;justify-items:center}
+.reel-stage{position:absolute;inset:0 0 70px}
+.reel-card{position:absolute;left:50%;top:50%;width:min(16vw,260px);aspect-ratio:9/16;margin:0;padding:0;border:0;cursor:pointer;color:inherit;background:var(--ink-2);overflow:hidden;
+  will-change:transform;clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%)}
+.reel-card video{width:100%;height:100%;object-fit:cover;display:block;transition:filter .5s}
+.reel-card:not(.front) video{filter:brightness(.42) saturate(.6)}
+.reel-card:focus-visible{outline:2px solid var(--signal);outline-offset:-4px}
+.reel-bar{position:relative;z-index:2;display:flex;align-items:center;gap:14px}
+.reel-bar button{width:40px;height:40px;display:grid;place-items:center;background:none;border:0;box-shadow:inset 0 0 0 1px var(--line);color:var(--bone);cursor:pointer;font:500 14px/1 var(--mono);transition:background .2s,box-shadow .2s}
+.reel-bar button:hover{box-shadow:inset 0 0 0 1px var(--signal);background:rgb(255 46 126 / .1)}
+.reel-now{min-width:min(46vw,250px);text-align:center;display:grid;gap:4px}
+.reel-now b{font:800 16px/1.15 var(--display);font-stretch:112%}
+.reel-dots{display:flex;gap:6px;justify-content:center}
+.reel-dots i{width:18px;height:2px;background:var(--line);transition:background .3s,width .3s}
+.reel-dots i.on{width:30px;background:var(--signal)}
+@media (max-width:899px){.hero{grid-template-columns:1fr;padding-bottom:56px}.reel{height:min(118vw,520px)}.reel-stage{inset:0 0 64px}.reel-card{width:min(40vw,210px)}}
+
+/* Intro: the studio's own logo animation plays once per visit */
+.intro{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#090708;transition:opacity .7s,visibility .7s}
+.intro.out{opacity:0;visibility:hidden}
+.intro video{width:min(60vw,380px);height:auto}
+.intro button{position:absolute;right:var(--gut);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:none;border:0;color:var(--mute);cursor:pointer;padding:10px 0}
+.intro button:hover{color:var(--bone)}
+
+/* Load-in: hero words rise into place, then the rest follows */
+.lift{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em;margin-bottom:-.06em}
+.lift > span{display:inline-block}
+.js .lift > span{translate:0 110%;transition:translate 1s cubic-bezier(.2,.8,.2,1) var(--d,0s)}
+.js .fade-in{opacity:0;translate:0 24px;transition:opacity .9s ease var(--d,0s),translate .9s cubic-bezier(.2,.8,.2,1) var(--d,0s)}
+.ready .lift > span,.ready .fade-in{translate:0 0;opacity:1}
+
+/* Scroll reveal: blocks rise in as they enter, siblings one after another */
+.js .rv{opacity:0;translate:0 44px;transition:opacity .9s ease calc(var(--i,0) * 90ms),translate 1s cubic-bezier(.2,.8,.2,1) calc(var(--i,0) * 90ms)}
+.js .rv.in{opacity:1;translate:0 0}
+/* outlined words: a render pass of light sweeps through them when they appear */
+.wire{background:linear-gradient(100deg,transparent 42%,rgb(255 46 126 / .95) 50%,transparent 58%) 0 0/250% 100% no-repeat;-webkit-background-clip:text;background-clip:text}
+.in .wire{animation:sweep 1.6s cubic-bezier(.6,0,.3,1) .35s both}
+.ready .hero .wire{animation:sweep-loop 7s cubic-bezier(.6,0,.3,1) .9s infinite both}
+@keyframes sweep-loop{0%{background-position:100% 0}24%,100%{background-position:0 0}}
+@keyframes sweep{from{background-position:100% 0}to{background-position:0 0}}
+
+/* Cursor: a dot and a trailing ring; the ring grows over links and turns into a play button over films */
+.cur{position:fixed;left:0;top:0;z-index:300;pointer-events:none;display:none}
+.has-cur .cur{display:block}
+.cur i,.cur b{position:fixed;left:0;top:0;border-radius:50%;translate:-50% -50%}
+.cur i{width:6px;height:6px;background:var(--signal)}
+.cur b{width:36px;height:36px;box-shadow:inset 0 0 0 1.5px rgb(247 238 242 / .5);display:grid;place-items:center;transition:width .3s,height .3s,background .3s,box-shadow .3s;
+  font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;color:transparent}
+.cur.link b{width:58px;height:58px;box-shadow:inset 0 0 0 1.5px var(--signal)}
+.cur.play b{width:84px;height:84px;background:var(--signal);box-shadow:none;color:var(--signal-ink)}
+.cur.play i{opacity:0}
+@media (pointer:fine){.has-cur,.has-cur a,.has-cur button,.has-cur label,.has-cur .reel-card{cursor:none}.has-cur input,.has-cur textarea{cursor:text}}
+
+/* Scroll progress along the bottom of the header */
+.progress{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--signal);transform-origin:0 50%;transform:scaleX(0)}
+
+/* Magnetic buttons and tilting tiles */
+.btn{transition:background .2s,translate .35s cubic-bezier(.2,.8,.2,1)}
+.clip-btn{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.clip-btn.tilt{transition:transform .12s linear}
 
 /* Scroll stage */
 .scrolly{position:relative}
@@ -122,13 +165,15 @@ p{margin:0}
 .pillar p:not(.eyebrow){color:var(--mute);font-size:15px}
 .pillar .eyebrow{margin:0}
 .process{list-style:none;margin:clamp(48px,6vw,88px) 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:pr;position:relative}
-.process::before{content:"";position:absolute;left:15px;right:15px;top:15px;height:2px;background:var(--line)}
+.process::before,.process::after{content:"";position:absolute;left:15px;right:15px;top:15px;height:2px;background:var(--line)}
+.process::after{background:var(--signal);transform-origin:0 50%;transform:scaleX(0);transition:transform 1.8s cubic-bezier(.6,0,.2,1) .2s}
+.process.in::after{transform:scaleX(1)}
 .process li{counter-increment:pr;position:relative;display:grid;gap:10px;align-content:start;padding-top:48px}
 .process li::before{content:counter(pr,decimal-leading-zero);position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
   background:var(--ink);box-shadow:inset 0 0 0 2px var(--signal);font:500 10px/1 var(--mono);color:var(--bone)}
 .process h3{font:800 clamp(17px,1.4vw,20px)/1.15 var(--display);font-stretch:112%}
 .process p{color:var(--mute);font-size:14px}
-@media (max-width:900px){.about-grid{grid-template-columns:1fr}.pillars{grid-template-columns:1fr}.process{grid-template-columns:1fr 1fr;gap:36px 14px}.process::before{display:none}}
+@media (max-width:900px){.about-grid{grid-template-columns:1fr}.pillars{grid-template-columns:1fr}.process{grid-template-columns:1fr 1fr;gap:36px 14px}.process::before,.process::after{display:none}}
 @media (max-width:520px){.process{grid-template-columns:1fr}}
 
 .ear-stage{background:radial-gradient(40% 50% at 28% 55%,rgb(247 238 242 / .06),transparent 70%)}
@@ -158,7 +203,11 @@ p{margin:0}
 @media (max-width:760px){.sec-head{grid-template-columns:1fr}}
 
 /* Work */
-.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,3fr) minmax(0,1fr);grid-template-areas:"a c"}
+.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-areas:"a c" "b c"}
+/* second row: two 9:16 films and a square one, sized so all three share one height */
+.work-row{display:grid;gap:14px;margin-top:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.78fr)}
+.clip.v .clip-btn{aspect-ratio:9/16}
+.clip.sq .clip-btn{aspect-ratio:1}
 .clip{position:relative;margin:0;display:flex;flex-direction:column}
 .clip.a{grid-area:a}.clip.b{grid-area:b}.clip.c{grid-area:c}
 .clip-btn{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;margin:0;background:var(--ink-2);cursor:pointer;color:inherit;overflow:hidden;
@@ -176,7 +225,9 @@ p{margin:0}
 .clip h3{font:800 clamp(17px,1.5vw,22px)/1.15 var(--display);font-stretch:112%}
 .clip .mono{margin-top:6px}
 @media (max-width:760px){
-  .work-grid{grid-template-columns:1fr;grid-template-areas:"a" "c";gap:36px}
+  .work-grid{grid-template-columns:1fr;grid-template-areas:"a" "b" "c";gap:36px}
+  .work-row{grid-template-columns:1fr;gap:36px;margin-top:36px}
+  .clip.v .clip-btn{max-height:80vh}
   .clip.c .clip-btn{aspect-ratio:9/16;flex:none;max-height:80vh}
   .clip figcaption{position:static;background:none;padding:14px 0 0}
 }
@@ -185,7 +236,7 @@ p{margin:0}
 .ig{margin-top:clamp(64px,8vw,112px)}
 .ig-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px;margin-bottom:28px}
 .ig-head h3{font:850 clamp(22px,2.4vw,34px)/1 var(--display);font-stretch:125%;text-transform:uppercase}
-.ig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:28px 18px;align-items:start}
+.ig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),380px));gap:28px 18px;align-items:start}
 .ig-item{margin:0;display:grid;gap:12px;min-width:0}
 .ig-item h4{margin:4px 0 0;font:800 17px/1.2 var(--display);font-stretch:112%}
 .ig-item .instagram-media{min-width:0!important;width:100%!important;max-width:100%!important;margin:0!important;border-radius:0!important;box-shadow:none!important;border:1px solid var(--line)!important}
@@ -204,6 +255,10 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .svc-card{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;padding:clamp(22px,2vw,30px);background:var(--ink-2);
   clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%);transition:background .2s}
 .svc-card:hover{background:var(--ink-3)}
+.svc-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgb(255 46 126 / .13),transparent 65%)}
+.svc-card:hover::before{opacity:1}
+.svc-card li{transition:box-shadow .2s,color .2s}
+.svc-card li:hover{box-shadow:inset 0 0 0 1px var(--signal)}
 .svc-card .num{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--signal)}
 .svc-card h3{font:850 clamp(21px,1.9vw,28px)/1 var(--display);font-stretch:125%;text-transform:uppercase}
 .svc-card > p{color:var(--mute);font-size:15px}
@@ -227,7 +282,7 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .textbtn:hover{color:var(--signal-hi)}
 .status{min-height:1.5em;font-size:13px;color:var(--mute)}
 .foot{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:24px;padding-block:48px calc(40px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line)}
-.foot img{width:84px;height:auto}
+.foot img,.foot-logo{width:120px;height:auto;display:block}
 .foot p{color:var(--mute);font-size:14px}
 
 /* Budget view */
@@ -303,7 +358,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 .mbar strong{font:800 16px/1.2 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
 @media (max-width:899px){.budget-grid{grid-template-columns:1fr}.summary{position:static}.mbar{display:flex}body:has(#budget-view:not([hidden])) .foot{padding-bottom:110px}}
 
-@media (prefers-reduced-motion:reduce){*{transition:none!important}.clip:hover video{transform:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.clip:hover video{transform:none}.js .rv,.js .fade-in,.js .lift > span{opacity:1;translate:none}}
 </style>
 </head>
 <body>
@@ -317,31 +372,33 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     <a href="#contact">Contact</a>
   </nav>
   <a class="btn sm" href="#budget">Get an estimate</a>
+  <i class="progress" id="progress" aria-hidden="true"></i>
 </header>
+<div class="intro" id="intro" hidden><video src="work/logo-anim.mp4" muted playsinline preload="auto" aria-label="Trizar"></video><button class="mono" type="button" id="intro-skip">Skip</button></div>
+<div class="cur" id="cur" aria-hidden="true"><i></i><b></b></div>
 
 <main id="home">
   <!-- 1. Hero -->
   <section id="hero" class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-glow" id="hero-glow" aria-hidden="true"></div>
     <div class="hero-copy">
-      <p class="eyebrow">Creative studio · 3D · CGI · Motion · Design</p>
-      <h1 class="display" id="hero-title"><span class="wire">Wireframe</span> to final frame.</h1>
-      <p class="lede">Trizar is a creative studio from India. We make 3D animation, CGI and VFX, motion graphics and video, and the brand, print and event design around them. One team takes your idea from the first sketch to the files you ship.</p>
-      <div class="row">
+      <p class="eyebrow fade-in" style="--d:.1s">Creative studio · 3D · CGI · Motion · Design</p>
+      <h1 class="display" id="hero-title"><span class="lift"><span class="wire" style="--d:.15s">Wireframe</span></span> <span class="lift"><span style="--d:.27s">to</span></span> <span class="lift"><span style="--d:.39s">final</span></span> <span class="lift"><span style="--d:.51s">frame.</span></span></h1>
+      <p class="lede fade-in" style="--d:.7s">Trizar is a creative studio from India. We make 3D animation, CGI and VFX, motion graphics and video, and the brand, print and event design around them. One team takes your idea from the first sketch to the files you ship.</p>
+      <div class="row fade-in" style="--d:.85s">
         <a class="btn" href="#budget">Estimate your budget</a>
-        <a class="btn ghost" href="#services">See everything we make</a>
+        <a class="btn ghost" href="#work">See the work</a>
       </div>
-      <p class="hero-facts mono"><span>3 founders, one team</span><span><b id="svc-count"></b> services</span><span>Brief to delivery in-house</span></p>
+      <p class="hero-facts mono fade-in" style="--d:1s"><span><b data-count="3">3</b> founders, one team</span><span><b data-count="" id="svc-count"></b> services</span><span>Brief to delivery in-house</span></p>
     </div>
-    <div class="ring">
-      <canvas id="ring" role="img" aria-label="The Trizar Z logo in 3D. Drag to spin it, and switch it between a wireframe, a clay model and a final render"></canvas>
-      <div class="ring-modes" role="group" aria-label="Render stage">
-        <button type="button" data-m="0" aria-pressed="true"><b>01</b>Wireframe</button>
-        <button type="button" data-m="1" aria-pressed="false"><b>02</b>Clay</button>
-        <button type="button" data-m="2" aria-pressed="false"><b>03</b>Final render</button>
+    <div class="reel fade-in" style="--d:.6s" aria-label="Recent films">
+      <div class="reel-stage" id="reel-stage"></div>
+      <div class="reel-bar">
+        <button type="button" id="reel-prev" aria-label="Previous film">←</button>
+        <div class="reel-now"><b id="reel-title"></b><span class="mono" id="reel-meta"></span><span class="reel-dots" id="reel-dots"></span></div>
+        <button type="button" id="reel-next" aria-label="Next film">→</button>
       </div>
-      <p class="ring-hint mono"><span class="mouse-only">Move to tilt · drag to spin</span><span class="touch-only">Swipe sideways to spin it</span></p>
     </div>
-    <div class="ticker" aria-hidden="true"><div id="ticker"></div></div>
   </section>
 
   <!-- 2. Studio -->
@@ -384,23 +441,65 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     </div>
     <div class="work-grid">
       <figure class="clip a">
+        <button class="clip-btn" type="button" data-src="work/duo.mp4" data-title="iPhone Duo" aria-label="Play iPhone Duo, with sound">
+          <video muted loop playsinline preload="none" poster="work/duo.jpg" src="work/duo.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>iPhone Duo</h3><p class="mono">3D commercial · Concept · 0:34</p></div>
+          <a class="link" href="#budget-35">Price a film like this</a>
+        </figcaption>
+      </figure>
+      <figure class="clip b">
         <button class="clip-btn" type="button" data-src="phone.mp4" data-title="Phone hype teaser" aria-label="Play Phone hype teaser, with sound">
           <video muted loop playsinline preload="none" poster="phone.jpg" src="phone.mp4"></video>
           <span class="play mono">Play with sound</span>
         </button>
         <figcaption>
-          <div><h3>Phone hype teaser</h3><p class="mono">Motion graphics · 0:16 · 1080p</p></div>
+          <div><h3>Phone hype teaser</h3><p class="mono">Motion graphics · 0:16</p></div>
           <a class="link" href="#budget-15">Price a film like this</a>
         </figcaption>
       </figure>
       <figure class="clip c">
+        <button class="clip-btn" type="button" data-src="work/casio.mp4" data-title="Casio, after dark" aria-label="Play Casio, after dark, with sound">
+          <video muted loop playsinline preload="none" poster="work/casio.jpg" src="work/casio.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Casio, after dark</h3><p class="mono">Product animation · Concept · 0:34</p></div>
+          <a class="link" href="#budget-35">Price a film like this</a>
+        </figcaption>
+      </figure>
+    </div>
+    <div class="work-row">
+      <figure class="clip v">
+        <button class="clip-btn" type="button" data-src="work/roadster.mp4" data-title="Tesla Roadster" aria-label="Play Tesla Roadster, with sound">
+          <video muted loop playsinline preload="none" poster="work/roadster.jpg" src="work/roadster.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Tesla Roadster</h3><p class="mono">3D animation · Concept · 0:22</p></div>
+          <a class="link" href="#budget-20">Price a film like this</a>
+        </figcaption>
+      </figure>
+      <figure class="clip v">
         <button class="clip-btn" type="button" data-src="earbuds.mp4" data-title="Earbuds feature film" aria-label="Play Earbuds feature film, with sound">
           <video muted loop playsinline preload="none" poster="earbuds.jpg" src="earbuds.mp4"></video>
           <span class="play mono">Play with sound</span>
         </button>
         <figcaption>
-          <div><h3>Earbuds feature film</h3><p class="mono">3D animation · 9:16 · 0:26</p></div>
+          <div><h3>Earbuds feature film</h3><p class="mono">3D animation · 0:26</p></div>
           <a class="link" href="#budget-25">Price a film like this</a>
+        </figcaption>
+      </figure>
+      <figure class="clip sq">
+        <button class="clip-btn" type="button" data-src="work/desk.mp4" data-title="Even this is 3D" aria-label="Play Even this is 3D, with sound">
+          <video muted loop playsinline preload="none" poster="work/desk.jpg" src="work/desk.mp4"></video>
+          <span class="play mono">Play with sound</span>
+        </button>
+        <figcaption>
+          <div><h3>Even this is 3D</h3><p class="mono">CGI · Photoreal · 0:11</p></div>
+          <a class="link" href="#budget-15">Price a film like this</a>
         </figcaption>
       </figure>
     </div>
@@ -543,7 +642,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 </main>
 
 <footer class="foot wrap">
-  <img src="logo-stack.webp" alt="Trizar" width="360" height="414">
+  <video class="foot-logo" src="work/logo-anim.mp4" poster="logo-stack.webp" muted loop playsinline preload="none" aria-label="Trizar" width="360" height="360"></video>
   <p>3D animation · CGI &amp; VFX · Motion · Design</p>
   <p class="mono">© 2026 Trizar.fx</p>
 </footer>
@@ -609,12 +708,14 @@ const SERVICES = [
 // Instagram posts shown under Selected work, in this order. id = the code in the post's link
 // (instagram.com/reel/<id>/ or /p/<id>/). Empty list = section hidden.
 const INSTAGRAM = [
-  { id: 'DfVd9lXhCan', title: 'Even this is 3D', type: 'CGI · Photoreal' },
-  { id: 'DfFp6jmBP4J', title: 'Tesla Roadster', type: '3D animation · Concept' },
-  { id: 'DeZNtt0vEtk', title: 'iPhone Duo', type: '3D commercial · Concept' },
-  { id: 'DeMkqCrtqAY', title: 'Casio, after dark', type: 'Product animation · Concept' },
   { id: 'DeAeyl9tcKO', title: 'AirPods Pro 3', type: '3D commercial · Concept' },
   { id: 'DenBwESl1EL', title: 'Tesla Roadster renders', type: '3D stills · Maya + Arnold' },
+];
+// Films in the hero stack, front first. Vertical (9:16) films look best here.
+const REEL = [
+  { src: 'work/casio.mp4', poster: 'work/casio.jpg', title: 'Casio, after dark', meta: 'Product animation · Concept' },
+  { src: 'work/roadster.mp4', poster: 'work/roadster.jpg', title: 'Tesla Roadster', meta: '3D animation · Concept' },
+  { src: 'earbuds.mp4', poster: 'earbuds.jpg', title: 'Earbuds feature film', meta: '3D animation' },
 ];
 /* ============================================== */
 
@@ -676,146 +777,6 @@ function fit(c) {
 const contain = (sw, sh, b) => { const k = Math.min(b.w / sw, b.h / sh); return { x: b.x + (b.w - sw * k) / 2, y: b.y + (b.h - sh * k) / 2, w: sw * k, h: sh * k, k }; };
 const mix = (a, b, t) => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) });
 const prog = el => { const r = el.getBoundingClientRect(); return { r, p: clamp(-r.top / (r.height - innerHeight)) }; };
-
-/* ---------- Hero: the Trizar Z in 3D. Tilt it with the cursor, drag to spin, switch wireframe / clay / final ---------- */
-const LOGO = (() => {
-  const c = $('#ring'), ctx = c.getContext('2d'), btns = $$('.ring-modes button'), hero = $('#hero');
-  // The mark, drawn on a 300 × 262 grid like the logo: a Z with a 45° diagonal, a truss over it, a beam along the diagonal
-  const Z = [[60, 40], [240, 40], [240, 70], [120, 190], [240, 190], [240, 222], [60, 222], [60, 190], [180, 70], [60, 70]];
-  const lerp2 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
-  const chain = (a, b, n) => Array.from({ length: n }, (_, i) => lerp2(a, b, i / (n - 1)));
-  const STRIPS = [
-    [chain([60, 40], [240, 40], 4), chain([60, 70], [240, 70], 4)],     // top bar
-    [chain([240, 70], [120, 190], 4), chain([180, 70], [60, 190], 4)],  // diagonal
-    [chain([60, 190], [240, 190], 4), chain([60, 222], [240, 222], 4)], // bottom bar
-  ];
-  const seg = [], nodes = new Map(), key = p => p.map(Math.round).join();
-  for (const [a, b] of STRIPS) for (let i = 0; i < a.length; i++) {
-    nodes.set(key(a[i]), a[i]); nodes.set(key(b[i]), b[i]);
-    seg.push([a[i], b[i]]);
-    if (i < a.length - 1) seg.push([a[i], a[i + 1]], [b[i], b[i + 1]], [a[i], b[i + 1]]);
-  }
-  const NODES = [...nodes.values()];
-  const BEAM = [[18, 292], [300, 10]];
-  const DEPTH = 34, CX = 150, CY = 131, DIST = 3.4;
-  const to3 = ([x, y], z = 0) => [(x - CX) / 150, -(y - CY) / 150, z / 150];
-
-  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const unit = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
-  const L = unit([-.5, .6, .8]);
-
-  const st = { yaw: -.35, pitch: .18, spin: 0, vs: 0, tx: 0, ty: 0, hx: 0, hy: 0, m: 0, target: 0, drag: null, auto: !reduce, cycle: 0, t0: 0 };
-  function setMode(k, byUser) {
-    st.target = k;
-    btns.forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.m === k)));
-    if (byUser) st.auto = false;
-  }
-  btns.forEach(b => b.addEventListener('click', () => setMode(+b.dataset.m, true)));
-  // hovering anywhere in the hero tilts the mark toward the cursor
-  hero.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse') return;
-    const r = c.getBoundingClientRect();
-    st.hx = clamp((e.clientX - (r.left + r.width / 2)) / innerWidth * 2, -1, 1);
-    st.hy = clamp((e.clientY - (r.top + r.height / 2)) / innerHeight * 2, -1, 1);
-  });
-  hero.addEventListener('pointerleave', () => { st.hx = st.hy = 0; });
-  c.addEventListener('pointerdown', e => { st.drag = { x: e.clientX, id: e.pointerId }; st.auto = false; c.setPointerCapture(e.pointerId); });
-  c.addEventListener('pointermove', e => {
-    if (!st.drag || st.drag.id !== e.pointerId) return;
-    st.vs = (e.clientX - st.drag.x) * .01; st.drag.x = e.clientX; st.spin += st.vs;
-  });
-  const end = () => { st.drag = null; };
-  c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
-
-  function tick(now) {
-    const r = c.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > innerHeight || !r.width) return;
-    if (!st.t0) st.t0 = now;
-    const { W, H, d } = fit(c), T = (now - st.t0) / 1000;
-    // spin: flick momentum, then ease back to face the viewer
-    if (!st.drag) { st.spin += st.vs; st.vs *= .94; if (Math.abs(st.vs) < .002) st.spin = lerp(st.spin, Math.round(st.spin / (Math.PI * 2)) * Math.PI * 2, .04); }
-    st.tx = lerp(st.tx, st.hx, .06); st.ty = lerp(st.ty, st.hy, .06);
-    const idle = reduce ? 0 : Math.sin(T * .6) * .12;
-    const yaw = st.yaw + st.spin + st.tx * .55 + idle, pitch = st.pitch + st.ty * .4;
-    if (st.auto && T > 2.4 && now - st.cycle > 2600) { st.cycle = now; setMode((st.target + 1) % 3, false); }
-    st.m = reduce ? st.target : lerp(st.m, st.target, .07);
-    const fillA = clamp(st.m), fk = clamp(st.m - 1);
-    const draw = reduce ? 1 : smooth(.1, 1.7, T);            // the truss draws itself on load
-
-    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
-    const rot = ([x, y, z]) => { const x1 = x * cy + z * sy, z1 = -x * sy + z * cy; return [x1, y * cp - z1 * sp, y * sp + z1 * cp]; };
-    const S = Math.min(W, H) * .4, ox = W / 2, oy = H / 2;
-    const proj = ([x, y, z]) => { const k = DIST / (DIST - z); return [ox + x * k * S, oy - y * k * S]; };
-    const P = (p, z) => { const v = rot(to3(p, z)); return { v, s: proj(v) }; };
-
-    ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H); ctx.lineJoin = ctx.lineCap = 'round';
-
-    // orbit ring: a tilted circle around the mark; the half behind it is drawn first
-    const ring = Array.from({ length: 97 }, (_, i) => {
-      const a = i / 96 * Math.PI * 2 + T * .5 * !reduce, e = [Math.cos(a) * 1.18, Math.sin(a) * .36, Math.sin(a) * .9];
-      const q = -.33, p3 = [e[0] * Math.cos(q) - e[1] * Math.sin(q), e[0] * Math.sin(q) + e[1] * Math.cos(q), e[2]];
-      const v = rot(p3); return { v, s: proj(v) };
-    });
-    const ringPass = front => {
-      ctx.lineWidth = 1.4; ctx.strokeStyle = `rgba(247,238,242,${.22 + .15 * fk})`; ctx.beginPath();
-      for (let i = 0; i < 96; i++) { const a = ring[i], b = ring[i + 1]; if ((a.v[2] + b.v[2] > 0) === front) { ctx.moveTo(...a.s); ctx.lineTo(...b.s); } }
-      ctx.stroke();
-      const sat = ring[0]; if ((sat.v[2] > 0) === front) { ctx.fillStyle = '#FF2E7E'; ctx.beginPath(); ctx.arc(...sat.s, 4.5, 0, 7); ctx.fill(); }
-    };
-    ringPass(false);
-
-    // the solid Z: two caps and the sides between them, back to front, faces turned away skipped
-    const F = Z.map(p => P(p, DEPTH / 2)), B = Z.map(p => P(p, -DEPTH / 2));
-    const polys = [];
-    const cap = (pts, n) => polys.push({ pts, n, z: pts.reduce((t, p) => t + p.v[2], 0) / pts.length, cap: true });
-    const nF = unit(rot([0, 0, 1])), nB = unit(rot([0, 0, -1]));
-    cap(F, nF); cap(B, nB);
-    for (let i = 0; i < Z.length; i++) {
-      const j = (i + 1) % Z.length, pts = [F[i], F[j], B[j], B[i]];
-      polys.push({ pts, n: unit(cross(sub(pts[1].v, pts[0].v), sub(pts[3].v, pts[0].v))), z: pts.reduce((t, p) => t + p.v[2], 0) / 4 });
-    }
-    const facing = q => dot(q.n, sub([0, 0, DIST], q.pts[0].v)) > 0;
-    // wireframe stage: the far outline and the depth edges, faint
-    if (fillA < .99) {
-      ctx.globalAlpha = .3 * (1 - fillA) * draw; ctx.strokeStyle = '#FF2E7E'; ctx.lineWidth = 1;
-      ctx.beginPath(); B.forEach((p, i) => i ? ctx.lineTo(...p.s) : ctx.moveTo(...p.s)); ctx.closePath();
-      F.forEach((p, i) => { ctx.moveTo(...p.s); ctx.lineTo(...B[i].s); }); ctx.stroke();
-    }
-    if (fillA > .01) {
-      ctx.globalAlpha = fillA;
-      for (const q of polys.filter(facing).sort((a, b) => a.z - b.z)) {
-        const diff = Math.max(0, dot(q.n, L)), lit = .35 + .65 * diff;
-        const clay = [178 * lit, 172 * lit, 175 * lit];
-        const fin = q.cap ? [247 * (.72 + .28 * diff), 238 * (.72 + .28 * diff), 242 * (.72 + .28 * diff)] : [255 * lit, 46 * lit, 126 * lit];
-        const col = clay.map((v, i) => Math.round(lerp(v, fin[i], fk)));
-        ctx.fillStyle = ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = .8;
-        ctx.beginPath(); q.pts.forEach((p, i) => i ? ctx.lineTo(...p.s) : ctx.moveTo(...p.s)); ctx.closePath(); ctx.fill(); ctx.stroke();
-      }
-    }
-    // the truss sits on the front face: bright in wireframe and final, a faint pencil line on clay
-    const frontVisible = dot(nF, sub([0, 0, DIST], F[0].v)) > 0;
-    const zT = frontVisible ? DEPTH / 2 + 1 : -DEPTH / 2 - 1;
-    const tA = (1 - fillA) + fillA * (fk * .95 + (1 - fk) * .18);
-    ctx.globalAlpha = tA; ctx.strokeStyle = fillA > .5 && fk < .5 ? '#2c2428' : '#FF2E7E'; ctx.lineWidth = 2;
-    ctx.beginPath();
-    seg.forEach(([a, b], i) => {
-      const k = clamp(draw * seg.length - i); if (!k) return;
-      const pa = P(a, zT).s, pb = P(lerp2(a, b, k), zT).s; ctx.moveTo(...pa); ctx.lineTo(...pb);
-    });
-    ctx.stroke();
-    ctx.fillStyle = ctx.strokeStyle;
-    NODES.forEach((n, i) => { const k = clamp(draw * NODES.length - i); if (k) { ctx.beginPath(); ctx.arc(...P(n, zT).s, 4.2 * k, 0, 7); ctx.fill(); } });
-
-    // the beam along the diagonal, in front of everything
-    ctx.globalAlpha = 1; ctx.strokeStyle = '#FF2E7E'; ctx.lineWidth = 5;
-    const bk = reduce ? 1 : smooth(.6, 1.6, T), b0 = P(BEAM[0], DEPTH / 2 + 6).s, b1 = P(lerp2(BEAM[0], BEAM[1], bk), DEPTH / 2 + 6).s;
-    if (bk > 0) { ctx.beginPath(); ctx.moveTo(...b0); ctx.lineTo(...b1); ctx.stroke(); }
-    ringPass(true);
-  }
-  return { tick };
-})();
 
 /* ---------- Earbuds case opens, buds drop in ---------- */
 const ear = { sec: $('#ear'), c: $('#ear-canvas'), shown: 0, key: '' };
@@ -977,9 +938,6 @@ $('#svc-grid').innerHTML = SERVICES.map((g, n) => {
 }).join('');
 const allItems = SERVICES.flatMap(g => g.items);
 $('#svc-count').textContent = allItems.length;
-const tick = allItems.map(i => `<span>${i}</span>`).join('');
-$('#ticker').innerHTML = tick + tick;
-if (reduce) $('#ticker').style.animation = 'none';
 $('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scope, complexity and deliverables. ' + (PROMO.off ? `Every 3D animation and 3D model estimate gets ${promoPct} off with code ${PROMO.code}. ` : '')
   + `Films longer than ${BASE_SEC} seconds get ${PROMO.off ? 'a further ' : ''}${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
 
@@ -1005,6 +963,13 @@ $('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scop
   } else load();
 })();
 
+/* ---------- Footer: the logo animation loops while the footer is on screen ---------- */
+(() => {
+  const v = $('.foot-logo'); if (!v || reduce) return;
+  if (!('IntersectionObserver' in window)) { v.play().catch(() => {}); return; }
+  new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? v.play().catch(() => {}) : v.pause()), { threshold: .3 }).observe(v);
+})();
+
 /* ---------- Work: silent previews in view, full film with sound on click ---------- */
 const auto = !reduce && !(navigator.connection && navigator.connection.saveData);
 const previews = $$('.clip video');
@@ -1014,17 +979,159 @@ if (auto && 'IntersectionObserver' in window) {
   previews.forEach(v => io.observe(v));
 }
 const lb = $('#lightbox'), lbv = $('#lb-video');
-$$('.clip-btn').forEach(b => b.addEventListener('click', () => {
-  previews.forEach(v => v.pause());
-  $('#lb-title').textContent = b.dataset.title;
-  lbv.src = b.dataset.src; lb.showModal(); lbv.play().catch(() => {});
-}));
+function openFilm(src, title) {
+  $$('video').forEach(v => { if (v !== lbv) v.pause(); });
+  $('#lb-title').textContent = title;
+  lbv.src = src; lb.showModal(); lbv.play().catch(() => {});
+  root.classList.remove('has-cur');
+}
+$$('.clip-btn').forEach(b => b.addEventListener('click', () => openFilm(b.dataset.src, b.dataset.title)));
 lb.addEventListener('close', () => {
   lbv.pause(); lbv.removeAttribute('src'); lbv.load();
   if (auto) previews.forEach(v => { if (inView(v)) v.play().catch(() => {}); });
 });
 $('#lb-close').addEventListener('click', () => lb.close());
 lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+
+/* ---------- Intro: the studio's logo animation plays once per visit, then the hero animates in ---------- */
+const root = document.documentElement;
+const goReady = () => {
+  if (root.classList.contains('ready')) return;
+  root.classList.add('ready');
+  // count the hero numbers up from zero
+  $$('[data-count]').forEach(el => {
+    const to = +el.textContent || 0, t0 = performance.now();
+    if (!to || reduce) return;
+    const step = now => { const k = clamp((now - t0) / 1200); el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+    el.textContent = '0'; setTimeout(() => requestAnimationFrame(step), 700);
+  });
+};
+(() => {
+  const intro = $('#intro'), iv = intro.querySelector('video');
+  let seen = true; try { seen = !!sessionStorage.getItem('trizar-intro'); } catch {}
+  if (reduce || seen || location.hash.startsWith('#budget')) { goReady(); return; }
+  intro.hidden = false; root.style.overflow = 'hidden';
+  let done = false;
+  const finish = () => {
+    if (done) return; done = true;
+    intro.classList.add('out'); root.style.overflow = '';
+    try { sessionStorage.setItem('trizar-intro', '1'); } catch {}
+    setTimeout(goReady, 200); setTimeout(() => { intro.hidden = true; iv.pause(); }, 900);
+  };
+  iv.addEventListener('ended', () => setTimeout(finish, 300));
+  iv.play().catch(finish);
+  intro.addEventListener('click', finish);
+  setTimeout(finish, 6500);
+})();
+
+/* ---------- Hero: a fanned stack of films. The front one plays; it follows the cursor; click a back card to bring it forward ---------- */
+const REELM = (() => {
+  const stage = $('#reel-stage'), hero = $('#hero'), glow = $('#hero-glow');
+  const cards = REEL.map(f => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'reel-card'; b.setAttribute('aria-label', `${f.title}. Play with sound`);
+    b.innerHTML = `<video muted loop playsinline preload="none" poster="${f.poster}" src="${f.src}"></video>`;
+    stage.appendChild(b);
+    return { el: b, v: b.querySelector('video'), f, x: 0, y: 0, r: 0, s: .8 };
+  });
+  $('#reel-dots').innerHTML = REEL.map(() => '<i></i>').join('');
+  // where each card sits: front, back right, back left  [x %, y %, rotate deg, scale]
+  const SLOTS = [[0, 0, 0, 1], [64, 5, 10, .8], [-64, 5, -10, .8]];
+  let front = 0, hover = -1, px = 0, py = 0, tx = 0, ty = 0, last = 0, visible = true;
+  const slot = i => (i - front + cards.length) % cards.length;
+  function show(k) {
+    front = (k + cards.length) % cards.length; last = performance.now();
+    cards.forEach((c, i) => {
+      const on = i === front; c.el.classList.toggle('front', on);
+      if (on && visible && !reduce && !lb.open) c.v.play().catch(() => {}); else c.v.pause();
+    });
+    $('#reel-title').textContent = REEL[front].title; $('#reel-meta').textContent = REEL[front].meta;
+    $$('#reel-dots i').forEach((d, i) => d.classList.toggle('on', i === front));
+  }
+  cards.forEach((c, i) => {
+    c.el.addEventListener('click', () => i === front ? openFilm(c.f.src, c.f.title) : show(i));
+    c.el.addEventListener('pointerenter', () => { hover = i; });
+    c.el.addEventListener('pointerleave', () => { hover = -1; });
+  });
+  $('#reel-prev').addEventListener('click', () => show(front - 1));
+  $('#reel-next').addEventListener('click', () => show(front + 1));
+  hero.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { px = e.clientX / innerWidth * 2 - 1; py = e.clientY / innerHeight * 2 - 1; } });
+  hero.addEventListener('pointerleave', () => { px = py = 0; });
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; show(front); }, { threshold: .2 }).observe(stage);
+  lb.addEventListener('close', () => show(front));
+  function tick(now) {
+    if (!visible) return;
+    if (!root.classList.contains('ready')) last = now;   // wait for the intro to finish
+    else if (!reduce && hover < 0 && !lb.open && now - last > 5200) show(front + 1);   // then turn to the next film on its own
+    tx = lerp(tx, px, .06); ty = lerp(ty, py, .06);
+    glow.style.setProperty('--gx', (72 + tx * 10).toFixed(1) + '%'); glow.style.setProperty('--gy', (46 + ty * 10).toFixed(1) + '%');
+    cards.forEach((c, i) => {
+      const sl = slot(i), [x, y, r, sc] = SLOTS[Math.min(sl, 2)], depth = 1 - sl * .4, lift = i === hover ? 1 : 0, k = reduce ? 1 : .085;
+      c.x = lerp(c.x, x, k); c.y = lerp(c.y, y - lift * 2.5, k); c.r = lerp(c.r, r * (1 - lift * .4), k); c.s = lerp(c.s, sc + lift * .035, k);
+      c.el.style.zIndex = String(10 - sl);
+      c.el.style.transform = `translate(-50%,-50%) translate(${(c.x + tx * 12 * depth).toFixed(2)}%,${(c.y + ty * 6 * depth).toFixed(2)}%) perspective(1200px) rotateY(${(-tx * 12 * depth).toFixed(2)}deg) rotateX(${(ty * 7 * depth).toFixed(2)}deg) rotate(${(c.r + tx * 2).toFixed(2)}deg) scale(${c.s.toFixed(4)})`;
+    });
+  }
+  show(0);
+  return { tick };
+})();
+
+/* ---------- Scroll reveal: sections, cards and tiles rise in as they come into view ---------- */
+(() => {
+  const groups = ['.sec-head', '.about-copy', '.founder', '.pillar', '.process li', '.work-grid .clip', '.work-row .clip', '.svc-card', '.fine', '.ig-head', '.ig-item', '.contact-in > *', '.foot > *'];
+  const els = [];
+  for (const sel of groups) $$(sel).forEach(el => {
+    const sibs = [...el.parentElement.children].filter(c => c.matches(sel));
+    el.style.setProperty('--i', Math.min(sibs.indexOf(el), 8)); el.classList.add('rv'); els.push(el);
+  });
+  els.push($('.process'));
+  if (!('IntersectionObserver' in window) || reduce) { els.forEach(el => el.classList.add('in')); return; }
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+/* ---------- Pointer details (mouse only): cursor, magnetic buttons, tilting films, light on service cards ---------- */
+(() => {
+  if (!matchMedia('(pointer: fine)').matches || reduce) return;
+  const cur = $('#cur'), dot = cur.querySelector('i'), ring = cur.querySelector('b');
+  let x = -99, y = -99, rx = -99, ry = -99;
+  addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    x = e.clientX; y = e.clientY;
+    // the lightbox sits above everything, so the normal cursor comes back while it is open
+    root.classList.toggle('has-cur', !lb.open);
+  }, { passive: true });
+  document.addEventListener('pointerover', e => {
+    const play = e.target.closest('.clip-btn, .reel-card.front'), hit = e.target.closest('a, button, label, summary');
+    cur.classList.toggle('play', !!play); cur.classList.toggle('link', !play && !!hit);
+    ring.textContent = play ? 'Play' : '';
+  });
+  document.addEventListener('mouseleave', () => { x = y = -99; });
+  (function follow() {
+    rx = lerp(rx, x, .2); ry = lerp(ry, y, .2);
+    dot.style.transform = `translate(${x}px,${y}px)`; ring.style.transform = `translate(${rx}px,${ry}px)`;
+    requestAnimationFrame(follow);
+  })();
+  // buttons lean toward the cursor
+  $$('.btn').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); b.style.translate = `${((e.clientX - r.left - r.width / 2) * .22).toFixed(1)}px ${((e.clientY - r.top - r.height / 2) * .3).toFixed(1)}px`; });
+    b.addEventListener('pointerleave', () => { b.style.translate = ''; });
+  });
+  // film tiles tilt under the cursor
+  $$('.clip-btn').forEach(b => {
+    b.addEventListener('pointermove', e => {
+      const r = b.getBoundingClientRect(), u = (e.clientX - r.left) / r.width - .5, v = (e.clientY - r.top) / r.height - .5;
+      b.classList.add('tilt'); b.style.transform = `perspective(1100px) rotateY(${(u * 7).toFixed(2)}deg) rotateX(${(-v * 7).toFixed(2)}deg) scale(1.015)`;
+    });
+    b.addEventListener('pointerleave', () => { b.classList.remove('tilt'); b.style.transform = ''; });
+  });
+  // a soft light follows the cursor across the service cards
+  $('#svc-grid').addEventListener('pointermove', e => {
+    const c = e.target.closest('.svc-card'); if (!c) return;
+    const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+})();
+
 
 /* ---------- Routes: #budget, #budget-anim, #budget-premium, #budget-25, #budget-exclusive-60,
    #budget-models, #budget-models-complex, #budget-custom, #budget-custom-events ---------- */
@@ -1056,7 +1163,8 @@ function route() {
 addEventListener('hashchange', route);
 
 function loop() {
-  if (!home.hidden) { LOGO.tick(performance.now()); tickEar(); }
+  if (!home.hidden) { REELM.tick(performance.now()); tickEar(); }
+  $('#progress').style.transform = `scaleX(${home.hidden ? 0 : clamp(scrollY / (document.documentElement.scrollHeight - innerHeight || 1)).toFixed(4)})`;
   bar.classList.toggle('solid', scrollY > 30 || !view.hidden);
   requestAnimationFrame(loop);
 }
