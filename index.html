@@ -100,6 +100,11 @@ p{margin:0}
 /* Intro: the studio's own logo animation plays once per visit */
 .intro{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:#090708;transition:opacity .7s,visibility .7s}
 .intro.out{opacity:0;visibility:hidden}
+.intro{background:var(--ink)}
+/* the logo video's dark background melts into the page: near-blacks are pushed to black, then only lighter pixels show, and the edges fade out */
+.intro video,.foot-logo{filter:contrast(1.25) brightness(.92);mix-blend-mode:lighten;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(transparent,#000 14%,#000 86%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-composite:intersect}
 .intro video{width:min(60vw,380px);height:auto}
 .intro button{position:absolute;right:var(--gut);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:none;border:0;color:var(--mute);cursor:pointer;padding:10px 0}
 .intro button:hover{color:var(--bone)}
@@ -307,6 +312,8 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .stars-in output{margin-left:10px;font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
 .count{justify-self:end;font:500 11px/1 var(--mono);color:var(--ash)}
 .fields .bad{border-color:var(--signal)}
+.trap{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
+.rev-form[aria-busy="true"]{opacity:.6;pointer-events:none}
 
 /* Budget view */
 .budget{padding-block:calc(var(--head) + clamp(40px,6vw,80px)) 120px}
@@ -585,6 +592,8 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
       <div class="fields">
         <label>Your name<input id="rv-name" autocomplete="name" maxlength="60" required></label>
         <label>Brand or company (optional)<input id="rv-brand" autocomplete="organization" maxlength="60"></label>
+        <label class="full">Your email (private, never shown)<input id="rv-email" type="email" autocomplete="email" maxlength="120" required></label>
+        <label class="trap" aria-hidden="true">Website<input id="rv-website" tabindex="-1" autocomplete="off"></label>
         <label class="full">Your review<textarea id="rv-text" rows="4" maxlength="500" required placeholder="What did we make for you, and how did it go?"></textarea><span class="count" id="rv-count">0 / 500</span></label>
       </div>
       <div class="row">
@@ -742,6 +751,8 @@ const REEL = [
 // Approved client reviews shown on the site, newest first. Add one only with the client's OK, in their words:
 // { name: 'Full name', brand: 'Company (optional)', stars: 5, text: 'What they said', date: 'Nov 2026' }
 const REVIEWS = [];
+// Address of the Google Sheet script that stores reviews posted on the site. Empty = reviews are sent on WhatsApp / by email instead.
+const REVIEWS_API = 'https://script.google.com/macros/s/AKfycbwWWdheaRpvSxiMD0q5xfFg8xnfLjr-xMKXUg8rs8TPVXJfu4VerW9mj3BIq3Tm2k6NiQ/exec';
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -962,20 +973,26 @@ $('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scop
   } else load();
 })();
 
-/* ---------- Reviews: show the approved ones; a new review is sent to the studio on WhatsApp or by email ---------- */
+/* ---------- Reviews: shown from the Google Sheet (and the list above); new ones post straight to it ---------- */
 (() => {
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const starRow = n => `<span class="stars" aria-label="${n} out of 5 stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
   const grid = $('#rev-grid'), sum = $('#rev-summary');
-  if (REVIEWS.length) {
-    const avg = REVIEWS.reduce((t, r) => t + r.stars, 0) / REVIEWS.length;
-    sum.innerHTML = `<p class="rev-avg">${avg.toFixed(1)} ${starRow(Math.round(avg))}</p><p class="mono">${REVIEWS.length} review${REVIEWS.length === 1 ? '' : 's'} from clients</p>`;
-    grid.innerHTML = REVIEWS.map(r => `<article class="review">${starRow(r.stars)}<blockquote>${esc(r.text)}</blockquote>
-      <footer><i aria-hidden="true">${esc(r.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase())}</i><div><b>${esc(r.name)}</b><span class="mono">${esc([r.brand, r.date].filter(Boolean).join(' · '))}</span></div></footer></article>`).join('');
-  } else {
-    sum.innerHTML = '<p class="lede">What clients say about working with the studio, in their own words.</p>';
-    grid.innerHTML = '<div class="rev-empty"><b>No reviews yet</b><span>Worked with Trizar? Be the first to share how it went.</span></div>';
+  let list = [...REVIEWS];
+  function render() {
+    if (list.length) {
+      const avg = list.reduce((t, r) => t + r.stars, 0) / list.length;
+      sum.innerHTML = `<p class="rev-avg">${avg.toFixed(1)} ${starRow(Math.round(avg))}</p><p class="mono">${list.length} review${list.length === 1 ? '' : 's'} from clients</p>`;
+      grid.innerHTML = list.map(r => `<article class="review rv in">${starRow(r.stars)}<blockquote>${esc(r.text)}</blockquote>
+        <footer><i aria-hidden="true">${esc(r.name.split(/\s+/).map(w => w[0] || '').join('').slice(0, 2).toUpperCase())}</i><div><b>${esc(r.name)}</b><span class="mono">${esc([r.brand, r.date].filter(Boolean).join(' · '))}</span></div></footer></article>`).join('');
+    } else {
+      sum.innerHTML = '<p class="lede">What clients say about working with the studio, in their own words.</p>';
+      grid.innerHTML = '<div class="rev-empty"><b>No reviews yet</b><span>Worked with Trizar? Be the first to share how it went.</span></div>';
+    }
   }
+  render();
+  if (REVIEWS_API) fetch(REVIEWS_API).then(r => r.json()).then(j => { if (j.ok && j.reviews) { list = [...j.reviews, ...REVIEWS]; render(); } }).catch(() => {});
+
   // star picker: hover previews, click sets
   const box = $('#rev-stars'), out = $('#rev-stars-out');
   out.insertAdjacentHTML('beforebegin', [1, 2, 3, 4, 5].map(n => `<label title="${n} star${n > 1 ? 's' : ''}"><input type="radio" name="rv-stars" value="${n}" aria-label="${n} star${n > 1 ? 's' : ''}">★</label>`).join(''));
@@ -987,22 +1004,46 @@ $('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scop
     l.querySelector('input').addEventListener('change', () => { rating = i + 1; paint(rating); out.textContent = `${rating} / 5 · ${words[rating]}`; });
   });
   box.addEventListener('pointerleave', () => paint(rating));
-  const name = $('#rv-name'), brand = $('#rv-brand'), text = $('#rv-text'), status = $('#rv-status');
+
+  const form = $('#rev-form'), name = $('#rv-name'), brand = $('#rv-brand'), email = $('#rv-email'), text = $('#rv-text'), status = $('#rv-status');
+  const okEmail = v => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.trim());
   text.addEventListener('input', () => { $('#rv-count').textContent = `${text.value.length} / 500`; });
-  function compose() {
-    [name, text].forEach(f => f.classList.toggle('bad', !f.value.trim()));
-    if (!rating || !name.value.trim() || !text.value.trim()) { status.textContent = 'Please add a rating, your name and a few words about the project.'; return null; }
-    return ['New review for Trizar', '', `Rating: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)`, `Name: ${name.value.trim()}`,
-      ...(brand.value.trim() ? [`Brand: ${brand.value.trim()}`] : []), '', text.value.trim()].join('\n');
+  if (REVIEWS_API) {
+    $('#rv-wa').textContent = 'Post review'; $('#rv-mail').hidden = true;
+    form.querySelector('.note').textContent = 'Your review appears here straight away. Your email stays private and is only used if we need to reach you.';
   }
+  function valid() {
+    name.classList.toggle('bad', !name.value.trim()); text.classList.toggle('bad', !text.value.trim()); email.classList.toggle('bad', !okEmail(email.value));
+    if (!rating || !name.value.trim() || !text.value.trim() || !okEmail(email.value)) { status.textContent = 'Please add a rating, your name, your email and a few words about the project.'; return false; }
+    return true;
+  }
+  const message = () => ['New review for Trizar', '', `Rating: ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)`, `Name: ${name.value.trim()}`,
+    ...(brand.value.trim() ? [`Brand: ${brand.value.trim()}`] : []), `Email: ${email.value.trim()}`, '', text.value.trim()].join('\n');
+  const sendWhatsApp = () => window.open(`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message())}`, '_blank', 'noopener');
+  const sendEmail = () => { location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Review for Trizar')}&body=${encodeURIComponent(message())}`; };
   const sent = () => { status.textContent = 'Thank you! Your review has gone to the studio and will appear here once it is approved.'; };
-  $('#rev-form').addEventListener('submit', e => {
-    e.preventDefault(); const msg = compose(); if (!msg) return;
-    if (CONTACT.whatsapp) { window.open(`https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener'); sent(); }
-    else { location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Review for Trizar')}&body=${encodeURIComponent(msg)}`; sent(); }
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); if (!valid()) return;
+    if (!REVIEWS_API) { CONTACT.whatsapp ? sendWhatsApp() : sendEmail(); sent(); return; }
+    form.setAttribute('aria-busy', 'true'); status.textContent = 'Posting your review…';
+    const review = { name: name.value.trim(), brand: brand.value.trim(), email: email.value.trim(), stars: rating, text: text.value.trim(), website: $('#rv-website').value };
+    try {
+      // text/plain keeps this a simple request, which the Google script accepts from any site
+      const res = await fetch(REVIEWS_API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(review) }).then(r => r.json());
+      if (res.ok) {
+        list.unshift({ name: review.name, brand: review.brand, stars: review.stars, text: review.text, date: new Date().toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }) });
+        render(); form.reset(); [name, email, text].forEach(f => f.classList.remove('bad')); rating = 0; paint(0); out.textContent = 'Pick a rating'; $('#rv-count').textContent = '0 / 500';
+        status.textContent = 'Thank you! Your review is live.';
+        grid.firstElementChild.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+      } else if (res.error === 'already_reviewed') status.textContent = 'There is already a review from this email address. Thank you!';
+      else status.textContent = 'Please check the form: a rating, your name, a valid email and a few words are needed.';
+    } catch {
+      status.textContent = 'We could not post it just now. You can send it to us on WhatsApp instead.';
+      $('#rv-mail').hidden = false; $('#rv-mail').textContent = 'Send on WhatsApp'; $('#rv-mail').onclick = () => { sendWhatsApp(); sent(); };
+    } finally { form.removeAttribute('aria-busy'); }
   });
-  $('#rv-mail').addEventListener('click', () => { const msg = compose(); if (!msg) return; location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Review for Trizar')}&body=${encodeURIComponent(msg)}`; sent(); });
-  if (!CONTACT.whatsapp) $('#rv-wa').textContent = 'Send review';
+  $('#rv-mail').addEventListener('click', () => { if (REVIEWS_API || !valid()) return; sendEmail(); sent(); });
+  if (!CONTACT.whatsapp && !REVIEWS_API) $('#rv-wa').textContent = 'Send review';
 })();
 
 /* ---------- Footer: the logo animation loops while the footer is on screen ---------- */
