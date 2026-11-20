@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Trizar.fx</title>
-<meta name="description" content="Trizar is a 3D studio for 3D animation, motion graphics and VFX.">
+<meta name="description" content="Trizar is a creative studio in India for 3D animation, CGI and VFX, motion graphics, video, branding, print and event design. One team from brief to final frame.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Martian+Mono:wght@400;500&display=swap">
@@ -69,33 +69,67 @@ p{margin:0}
 .top nav a:hover{color:var(--bone)}
 @media (max-width:760px){.top nav{display:none}.top .btn{margin-left:auto}}
 
-/* Scroll stages */
+/* Hero: type-led, the logo's beam crosses behind it, a ticker of everything we make runs along the bottom */
+.hero{position:relative;min-height:100vh;min-height:100svh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:center;gap:24px;box-sizing:border-box;
+  padding-block:calc(var(--head) + 4vh) 120px;overflow:hidden;
+  background:radial-gradient(45% 55% at 74% 46%,rgb(255 46 126 / .1),transparent 70%)}
+.hero-copy{position:relative;z-index:2;display:grid;gap:26px}
+/* Interactive logo: tilt with the cursor, drag to spin, switch it from wireframe to clay to final render */
+.ring{position:relative;z-index:1;display:grid;gap:14px;justify-items:center}
+.ring canvas{width:100%;max-width:640px;aspect-ratio:1;display:block;cursor:grab;touch-action:pan-y}
+.ring canvas:active{cursor:grabbing}
+.ring-modes{display:flex;flex-wrap:wrap;justify-content:center;gap:0;box-shadow:inset 0 0 0 1px var(--line)}
+.ring-modes button{background:none;border:0;cursor:pointer;padding:11px 16px;color:var(--mute);font:500 11px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;transition:background .2s,color .2s}
+.ring-modes button b{color:var(--signal);font-weight:500;margin-right:8px}
+.ring-modes button:hover{color:var(--bone)}
+.ring-modes button[aria-pressed="true"]{background:var(--signal);color:var(--signal-ink)}
+.ring-modes button[aria-pressed="true"] b{color:var(--signal-ink)}
+.ring-hint{margin:0;text-align:center}
+.hero h1.display{font-size:clamp(40px,5.6vw,104px);line-height:.9}
+.hero .lede{max-width:60ch}
+.hero-facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin-top:4px}
+.hero-facts span{display:flex;align-items:center;gap:10px}
+.hero-facts span::before{content:"";width:8px;height:8px;rotate:45deg;background:var(--signal)}
+.ticker{position:absolute;left:0;right:0;bottom:calc(28px + env(safe-area-inset-bottom,0px));z-index:2;overflow:hidden;
+  border-block:1px solid var(--line);padding-block:14px;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker div{display:flex;width:max-content;animation:tick 90s linear infinite}
+.ticker span{font:800 clamp(14px,1.3vw,18px)/1 var(--display);font-stretch:112%;text-transform:uppercase;white-space:nowrap;padding-right:28px;display:flex;align-items:center;gap:28px;color:var(--mute)}
+.ticker span::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--signal)}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (max-width:899px){.hero{grid-template-columns:1fr;padding-bottom:110px}.ring canvas{max-width:420px}}
+
+/* Scroll stage */
 .scrolly{position:relative}
-#kb{height:430vh}
 #ear{height:330vh}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
 .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.kb-stage{background:radial-gradient(55% 45% at 68% 58%,rgb(255 46 126 / .07),transparent 70%)}
-.hero-copy{position:absolute;z-index:2;left:var(--gut);top:calc(var(--head) + 9vh);width:min(37vw,600px);display:grid;gap:22px}
-.hero-copy .row{margin-top:6px}
-.hint,.counter{position:absolute;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0}
-.hint{left:var(--gut);display:flex;align-items:center;gap:12px;color:var(--bone)}
-.hint::before{content:"";width:28px;height:2px;background:var(--signal)}
-.counter{right:var(--gut);font-variant-numeric:tabular-nums}
 .touch-only{display:none}
 @media (hover:none){.mouse-only{display:none}.touch-only{display:inline}}
-.kb-side{position:absolute;z-index:2;right:var(--gut);top:50%;translate:0 -50%;width:min(25vw,360px);display:grid;gap:16px;opacity:0;pointer-events:none}
-.kb-side.on{pointer-events:auto}
-.kb-side h2.display{font-size:clamp(26px,2.6vw,42px)}
-.kb-side .body{color:var(--mute);font-size:15px}
-.layers-inline{display:none}
-.layers{position:absolute;inset:0;list-style:none;margin:0;padding:0;pointer-events:none;z-index:2}
-.layers li{position:absolute;left:0;top:0;display:flex;align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .35s;
-  font:800 clamp(12px,1.1vw,16px)/1 var(--display);font-stretch:75%;text-transform:uppercase;letter-spacing:.03em}
-.layers li.on{opacity:1}
-.layers b{font:500 10px/1 var(--mono);color:var(--signal)}
-.layers i{position:relative;width:30px;height:2px;background:var(--signal)}
-.layers i::after{content:"";position:absolute;right:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--signal)}
+.counter{position:absolute;z-index:2;bottom:calc(22px + env(safe-area-inset-bottom,0px));margin:0;right:var(--gut);font-variant-numeric:tabular-nums}
+
+/* Studio */
+.about-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(32px,5vw,80px);align-items:start}
+.about-copy{display:grid;gap:18px;font-size:clamp(16px,1.25vw,18px);color:var(--mute);max-width:60ch}
+.about-copy strong{color:var(--bone);font-weight:650}
+.founders{display:grid;gap:10px}
+.founder{display:grid;grid-template-columns:56px minmax(0,1fr);gap:18px;align-items:center;padding:16px 18px;background:var(--ink-2);
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.founder i{width:56px;height:56px;display:grid;place-items:center;font:850 20px/1 var(--display);font-style:normal;font-stretch:125%;color:var(--signal);box-shadow:inset 0 0 0 2px var(--signal);border-radius:50%}
+.founder b{display:block;font:800 clamp(18px,1.6vw,22px)/1.1 var(--display);font-stretch:112%}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:clamp(48px,6vw,88px)}
+.pillar{padding:26px 24px;border-top:2px solid var(--signal);background:linear-gradient(var(--ink-2),transparent);display:grid;gap:10px;align-content:start}
+.pillar h3{font:850 clamp(18px,1.6vw,24px)/1.05 var(--display);font-stretch:125%;text-transform:uppercase}
+.pillar p:not(.eyebrow){color:var(--mute);font-size:15px}
+.pillar .eyebrow{margin:0}
+.process{list-style:none;margin:clamp(48px,6vw,88px) 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:pr;position:relative}
+.process::before{content:"";position:absolute;left:15px;right:15px;top:15px;height:2px;background:var(--line)}
+.process li{counter-increment:pr;position:relative;display:grid;gap:10px;align-content:start;padding-top:48px}
+.process li::before{content:counter(pr,decimal-leading-zero);position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);box-shadow:inset 0 0 0 2px var(--signal);font:500 10px/1 var(--mono);color:var(--bone)}
+.process h3{font:800 clamp(17px,1.4vw,20px)/1.15 var(--display);font-stretch:112%}
+.process p{color:var(--mute);font-size:14px}
+@media (max-width:900px){.about-grid{grid-template-columns:1fr}.pillars{grid-template-columns:1fr}.process{grid-template-columns:1fr 1fr;gap:36px 14px}.process::before{display:none}}
+@media (max-width:520px){.process{grid-template-columns:1fr}}
 
 .ear-stage{background:radial-gradient(40% 50% at 28% 55%,rgb(247 238 242 / .06),transparent 70%)}
 .beats{position:absolute;z-index:2;left:52%;right:var(--gut);top:50%;translate:0 -50%;max-width:540px;display:grid;padding-left:36px}
@@ -109,16 +143,8 @@ p{margin:0}
 .rail b.on{background:var(--signal);box-shadow:inset 0 0 0 2px var(--signal)}
 
 @media (max-width:899px){
-  #kb{height:380vh} #ear{height:300vh}
-  .hero-copy{top:calc(var(--head) + 3vh);right:var(--gut);width:auto;gap:16px}
-  h1.display{font-size:clamp(32px,10.4vw,60px)}
-  .kb-side{top:calc(var(--head) + 2vh);left:var(--gut);right:var(--gut);width:auto;translate:none;gap:10px}
-  .kb-side .body{font-size:14px}
-  .layers-inline{font-size:10px;letter-spacing:.06em}
-  .kb-side .link{display:none}
-  .layers{display:none}
-  .hint{bottom:calc(50px + env(safe-area-inset-bottom,0px))}
-  .layers-inline{display:block;color:var(--bone);line-height:1.8}
+  #ear{height:300vh}
+  .hero h1.display{font-size:clamp(38px,11vw,64px)}
   .beats{left:var(--gut);right:var(--gut);top:auto;bottom:calc(64px + env(safe-area-inset-bottom,0px));translate:none;padding:18px 0 0;
     background:linear-gradient(transparent,var(--ink) 30%)}
   .beat h2.display{font-size:clamp(24px,7.4vw,36px)}
@@ -132,7 +158,7 @@ p{margin:0}
 @media (max-width:760px){.sec-head{grid-template-columns:1fr}}
 
 /* Work */
-.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);grid-template-areas:"a c" "b c"}
+.work-grid{display:grid;gap:14px;grid-template-columns:minmax(0,3fr) minmax(0,1fr);grid-template-areas:"a c"}
 .clip{position:relative;margin:0;display:flex;flex-direction:column}
 .clip.a{grid-area:a}.clip.b{grid-area:b}.clip.c{grid-area:c}
 .clip-btn{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;margin:0;background:var(--ink-2);cursor:pointer;color:inherit;overflow:hidden;
@@ -150,7 +176,7 @@ p{margin:0}
 .clip h3{font:800 clamp(17px,1.5vw,22px)/1.15 var(--display);font-stretch:112%}
 .clip .mono{margin-top:6px}
 @media (max-width:760px){
-  .work-grid{grid-template-columns:1fr;grid-template-areas:"a" "b" "c";gap:36px}
+  .work-grid{grid-template-columns:1fr;grid-template-areas:"a" "c";gap:36px}
   .clip.c .clip-btn{aspect-ratio:9/16;flex:none;max-height:80vh}
   .clip figcaption{position:static;background:none;padding:14px 0 0}
 }
@@ -162,19 +188,19 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .lb-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%}
 .lb-close{background:none;border:0;color:var(--bone);cursor:pointer;padding:8px 0}
 
-/* Services: a wire with a node per service */
-.svc{list-style:none;margin:0;padding:0;position:relative}
-.svc::before{content:"";position:absolute;left:6px;top:40px;bottom:40px;width:2px;background:var(--line)}
-.svc a{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr) 11rem;gap:10px 40px;align-items:center;padding:26px 0 26px 44px;text-decoration:none}
-.svc a::before{content:"";position:absolute;left:0;top:50%;translate:0 -50%;width:14px;height:14px;border-radius:50%;background:var(--ink);box-shadow:inset 0 0 0 2px var(--signal);transition:background .2s}
-.svc a:hover::before,.svc a:focus-visible::before{background:var(--signal)}
-.svc h3{font:850 clamp(22px,2.6vw,40px)/1 var(--display);font-stretch:125%;text-transform:uppercase;transition:translate .25s}
-.svc a:hover h3{translate:8px 0}
-.svc p{color:var(--mute);max-width:46ch}
-.svc .price{text-align:right;display:grid;gap:6px;justify-items:end}
-.svc .price strong{font:750 15px/1 var(--body);font-stretch:112%;white-space:nowrap}
-.svc .go{color:var(--signal)}
-@media (max-width:860px){.svc a{grid-template-columns:1fr;padding-block:20px}.svc .price{justify-items:start;text-align:left;grid-auto-flow:column;gap:16px;align-items:baseline}}
+/* Services: one card per discipline, every service we take on listed inside */
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.svc-card{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;padding:clamp(22px,2vw,30px);background:var(--ink-2);
+  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%);transition:background .2s}
+.svc-card:hover{background:var(--ink-3)}
+.svc-card .num{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--signal)}
+.svc-card h3{font:850 clamp(21px,1.9vw,28px)/1 var(--display);font-stretch:125%;text-transform:uppercase}
+.svc-card > p{color:var(--mute);font-size:15px}
+.svc-card ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-content:start}
+.svc-card li{font-size:13px;line-height:1.3;padding:7px 10px;box-shadow:inset 0 0 0 1px var(--line);color:var(--bone)}
+.svc-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding-top:16px;border-top:1px solid var(--line)}
+.svc-foot > div{flex:1 1 12rem;min-width:0}
+.svc-foot strong{font:750 15px/1 var(--body);font-stretch:112%;white-space:nowrap}
 .fine{margin-top:28px;color:var(--mute);font-size:14px}
 
 /* Contact: the logo's beam crosses the section */
@@ -238,7 +264,15 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 
 .summary{position:sticky;top:calc(var(--head) + 20px);background:var(--ink-2);padding:clamp(18px,2vw,28px);display:grid;gap:18px;
   clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,0 100%)}
-.sum-canvas{width:100%;aspect-ratio:16/9;display:block;margin:-6px 0 -10px}
+.picks{display:grid;gap:22px}
+.pick-row{display:flex;flex-wrap:wrap;gap:6px}
+.pick{position:relative;cursor:pointer}
+.pick input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.pick span{display:block;padding:9px 12px;font-size:13px;line-height:1.3;background:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line);transition:background .15s}
+.pick:hover span{box-shadow:inset 0 0 0 1px var(--ash)}
+.pick input:checked + span{background:var(--signal);color:var(--signal-ink);box-shadow:none}
+.pick input:focus-visible + span{outline:2px solid var(--bone);outline-offset:2px}
+.total.quote{font-size:clamp(28px,2.6vw,38px)}
 .sum-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .total{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;font:850 clamp(32px,3.2vw,48px)/1.05 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
 .total s{font:500 14px/1 var(--mono);color:var(--mute)}
@@ -265,6 +299,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 <header class="top" id="top-bar">
   <a class="brand" href="#top" aria-label="Trizar home"><img src="logo.webp" alt="Trizar" width="720" height="181"></a>
   <nav aria-label="Main">
+    <a href="#studio">Studio</a>
     <a href="#work">Work</a>
     <a href="#services">Services</a>
     <a href="#contact">Contact</a>
@@ -273,30 +308,59 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 </header>
 
 <main id="home">
-  <!-- 1. Hero + keyboard: scroll takes it apart -->
-  <section id="kb" class="scrolly" aria-label="Keyboard exploded view">
-    <div class="stage kb-stage">
-      <canvas id="kb-canvas" role="img" aria-label="A mechanical keyboard that turns, then separates into its eleven layers as you scroll"></canvas>
-      <div class="hero-copy" id="hero-copy">
-        <p class="eyebrow">3D animation · Motion graphics · VFX</p>
-        <h1 class="display"><span class="wire">Wireframe</span> to final frame.</h1>
-        <p class="lede">Trizar is a 3D studio founded by Hitarth Shah, Darshan Gilitwala and Dhruv Shetty. We take products from the first polygon to the finished film: 3D animation with modelling included, motion graphics and VFX.</p>
-        <div class="row">
-          <a class="btn" href="#budget">Estimate your budget</a>
-          <a class="btn ghost" href="#work">See the work</a>
-        </div>
+  <!-- 1. Hero -->
+  <section id="hero" class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow">Creative studio · 3D · CGI · Motion · Design</p>
+      <h1 class="display" id="hero-title"><span class="wire">Wireframe</span> to final frame.</h1>
+      <p class="lede">Trizar is a creative studio from India. We make 3D animation, CGI and VFX, motion graphics and video, and the brand, print and event design around them. One team takes your idea from the first sketch to the files you ship.</p>
+      <div class="row">
+        <a class="btn" href="#budget">Estimate your budget</a>
+        <a class="btn ghost" href="#services">See everything we make</a>
       </div>
-      <div class="kb-side" id="kb-side">
-        <p class="eyebrow">Exploded view</p>
-        <h2 class="display"><span class="wire">Every</span> layer, modelled.</h2>
-        <p class="body">Eleven parts, from keycaps to bottom case, each modelled and lit to hold up in close-up. Built in Maya and taken apart on your scroll.</p>
-        <p class="layers-inline mono">Keycaps · Top frame · Switches · Dampening ×3 · Plate · PCB · Foam ×2 · Bottom case</p>
-        <p><a class="link" href="#work">Watch the full film</a></p>
-      </div>
-      <ol class="layers" id="layers" aria-hidden="true"></ol>
-      <p class="hint mono" id="kb-hint"><span class="mouse-only">Move your cursor to turn it. Scroll to take it apart.</span><span class="touch-only">Scroll to take it apart.</span></p>
-      <p class="counter mono" id="kb-counter">Frame 001 / 250</p>
+      <p class="hero-facts mono"><span>3 founders, one team</span><span><b id="svc-count"></b> services</span><span>Brief to delivery in-house</span></p>
     </div>
+    <div class="ring">
+      <canvas id="ring" role="img" aria-label="The Trizar Z logo in 3D. Drag to spin it, and switch it between a wireframe, a clay model and a final render"></canvas>
+      <div class="ring-modes" role="group" aria-label="Render stage">
+        <button type="button" data-m="0" aria-pressed="true"><b>01</b>Wireframe</button>
+        <button type="button" data-m="1" aria-pressed="false"><b>02</b>Clay</button>
+        <button type="button" data-m="2" aria-pressed="false"><b>03</b>Final render</button>
+      </div>
+      <p class="ring-hint mono"><span class="mouse-only">Move to tilt · drag to spin</span><span class="touch-only">Swipe sideways to spin it</span></p>
+    </div>
+    <div class="ticker" aria-hidden="true"><div id="ticker"></div></div>
+  </section>
+
+  <!-- 2. Studio -->
+  <section id="studio" class="section wrap" aria-labelledby="studio-title">
+    <div class="sec-head">
+      <h2 class="display" id="studio-title"><span class="wire">The</span> studio</h2>
+      <p class="lede">A small team that covers the whole pipeline, so your film, your stills and your launch graphics all come from one place and look like they belong together.</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-copy">
+        <p><strong>Trizar started as a 3D animation studio</strong>: modelling products, lighting them and turning them into launch films. Brands kept asking us for the pieces around the film too: the reel cut, the poster, the event backdrop, the social posts. So we built the team to make all of it.</p>
+        <p>Today we work across <strong>3D animation and rendering, CGI and VFX, architectural visualisation, motion graphics and video editing, AI video, branding, print and event design</strong>. Every project is planned, made and checked in-house, so nothing gets lost between agencies.</p>
+        <p>We work with brands, agencies and event teams, on anything from one product render to a full launch campaign. Tell us the deadline and where the work will be seen, and we will plan around it.</p>
+      </div>
+      <div class="founders" aria-label="Founders">
+        <div class="founder"><i aria-hidden="true">HS</i><div><b>Hitarth Shah</b><span class="mono">Co-founder</span></div></div>
+        <div class="founder"><i aria-hidden="true">DG</i><div><b>Darshan Gilitwala</b><span class="mono">Co-founder</span></div></div>
+        <div class="founder"><i aria-hidden="true">DS</i><div><b>Dhruv Shetty</b><span class="mono">Co-founder</span></div></div>
+      </div>
+    </div>
+    <div class="pillars">
+      <article class="pillar"><p class="eyebrow">One team</p><h3>Start to finish</h3><p>Modelling, animation, compositing, edit and design under one roof. One point of contact and one consistent look.</p></article>
+      <article class="pillar"><p class="eyebrow">Built for launches</p><h3>Real deadlines</h3><p>We plan backwards from your launch date and share progress at every stage, so there are no surprises in the final week.</p></article>
+      <article class="pillar"><p class="eyebrow">Every format</p><h3>Ready to post</h3><p>16:9 films, 9:16 reels, stills, print files and screens. We deliver each piece in the size and format it will be used in.</p></article>
+    </div>
+    <ol class="process" aria-label="How we work">
+      <li><h3>Brief</h3><p>A short call about what you are launching, where it will be seen and when you need it. You get a fixed quote.</p></li>
+      <li><h3>Concept</h3><p>Storyboards, style frames and references, so you approve the look before production starts.</p></li>
+      <li><h3>Production</h3><p>Modelling, animation, design and edit, with previews for your feedback along the way.</p></li>
+      <li><h3>Delivery</h3><p>Final files in every format you need, plus cut-downs for social, ads and screens.</p></li>
+    </ol>
   </section>
 
   <!-- 2. Work -->
@@ -307,16 +371,6 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     </div>
     <div class="work-grid">
       <figure class="clip a">
-        <button class="clip-btn" type="button" data-src="keyboard.mp4" data-title="Keyboard, taken apart" aria-label="Play Keyboard, taken apart, with sound">
-          <video muted loop playsinline preload="none" poster="keyboard.jpg" src="keyboard.mp4"></video>
-          <span class="play mono">Play with sound</span>
-        </button>
-        <figcaption>
-          <div><h3>Keyboard, taken apart</h3><p class="mono">3D animation · 0:25 · 1440p · 60 fps</p></div>
-          <a class="link" href="#budget-25">Price a film like this</a>
-        </figcaption>
-      </figure>
-      <figure class="clip b">
         <button class="clip-btn" type="button" data-src="phone.mp4" data-title="Phone hype teaser" aria-label="Play Phone hype teaser, with sound">
           <video muted loop playsinline preload="none" poster="phone.jpg" src="phone.mp4"></video>
           <span class="play mono">Play with sound</span>
@@ -369,14 +423,9 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
   <section id="services" class="section wrap" aria-labelledby="svc-title">
     <div class="sec-head">
       <h2 class="display" id="svc-title"><span class="wire">What we</span> make</h2>
-      <p class="lede">Four services, one pipeline. 3D animation and motion graphics are priced by the second, 3D models by the package; VFX is quoted per project.</p>
+      <p class="lede">From a single product render to a full launch campaign. 3D animation is priced by the second and 3D models by the package. Everything else has a starting price: pick what you need and we send a fixed quote.</p>
     </div>
-    <ul class="svc">
-      <li><a href="#budget-standard"><h3>3D animation</h3><p>Product films, launch animations and exploded views. Modelling, lighting and rendering are included.</p><span class="price"><strong data-price="tier"></strong><span class="mono go">Estimate</span></span></a></li>
-      <li><a href="#budget-models"><h3>3D models</h3><p>Detailed models of your products on their own, with no animation. Priced per package, from a single model to a complex range.</p><span class="price"><strong data-price="models"></strong><span class="mono go">Estimate</span></span></a></li>
-      <li><a href="#budget-anim"><h3>Motion graphics &amp; editing</h3><p>Motion graphics, video editing and SFX that turn a render sequence into a finished film.</p><span class="price"><strong data-price="addon"></strong><span class="mono go">Estimate</span></span></a></li>
-      <li><a href="#contact"><h3>VFX &amp; CGI</h3><p>CG products and effects composited into live-action footage.</p><span class="price"><strong>Custom quote</strong><span class="mono go">Contact</span></span></a></li>
-    </ul>
+    <div class="svc-grid" id="svc-grid"></div>
     <p class="fine" id="svc-fine"></p>
   </section>
 
@@ -406,7 +455,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
   <div class="budget-head">
     <p class="eyebrow">Budget calculator</p>
     <h1 class="display"><span class="wire">Budget</span> breakdown</h1>
-    <p class="lede">Choose animation or 3D models, then pick what fits to see your price. It is an estimate: we confirm the final quote after a short call about your brief.</p>
+    <p class="lede">Choose 3D animation or 3D models to see a price straight away, or pick any of our other services and send us the list for a quote. Prices here are estimates: we confirm the final quote after a short call about your brief.</p>
   </div>
   <div class="budget-grid">
     <form id="calc" class="steps" novalidate>
@@ -432,6 +481,11 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
         <div class="choices tiers" id="model-choices"></div>
         <p class="note">Fixed price per package, before GST. Modelling only, no animation or rendered film.</p>
       </fieldset>
+      <fieldset class="step" data-mode="custom" hidden>
+        <legend><span class="part">Other services · Starting prices</span>Pick everything you need</legend>
+        <div class="picks" id="pick-choices"></div>
+        <p class="note">Starting prices shown, before GST. Final quote depends on scope, complexity and deliverables.</p>
+      </fieldset>
       <fieldset class="step">
         <legend>About you <span class="note">(optional)</span></legend>
         <div class="fields">
@@ -443,10 +497,8 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     </form>
 
     <aside class="summary" id="summary" aria-label="Your estimate">
-      <canvas class="sum-canvas" id="bud-canvas" aria-hidden="true"></canvas>
-      <p class="mono">The bigger the brief, the further it comes apart</p>
       <div>
-        <p class="eyebrow">Estimated budget</p>
+        <p class="eyebrow" id="t-label">Estimated budget</p>
         <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off" id="t-off"></span></p>
       </div>
       <ul class="lines" id="t-lines"></ul>
@@ -467,7 +519,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 
 <footer class="foot wrap">
   <img src="logo-stack.webp" alt="Trizar" width="360" height="414">
-  <p>3D animation · Motion graphics · VFX</p>
+  <p>3D animation · CGI &amp; VFX · Motion · Design</p>
   <p class="mono">© 2026 Trizar.fx</p>
 </footer>
 
@@ -505,6 +557,29 @@ const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole
 const GST = 0.18;      // added on top of the estimate, after the discounts
 // promo applied to every estimate, after the length discount. Set off: 0 to switch it off
 const PROMO = { code: 'ANGLEPROJECTS', off: 0.20 }; // applies to animation and 3D models alike
+// Everything we make, one card per discipline. price: 'tier' | 'models' | 'addon' show a live price from the
+// tables above and link to that calculator. Others show 'From <from><unit>' (starting price, before GST) with
+// its basic scope, and link to the quote picker.
+const SERVICES = [
+  { id: 'anim', name: '3D animation', price: 'tier', desc: 'Product films, launch animations and explainers. Modelling, lighting and rendering included.',
+    items: ['3D product animation', '3D character animation', '3D logo animation', '3D explainer animation', 'Mechanical / assembly animation', 'Fluid, cloth & particle simulation', 'Seamless 3D animation loops', 'Character & product rigging'] },
+  { id: 'models', name: '3D modelling & rendering', price: 'models', desc: 'Detailed models and photoreal stills of your products, ready for ads, product pages and AR.',
+    items: ['3D modelling', 'Product still renders', 'Texturing & material development', '3D lighting & rendering', '360° product turntables', '3D packaging visualisation', 'Game-ready 3D assets', '3D environment design', 'AR / VR asset preparation'] },
+  { id: 'arch', name: 'Architecture & spaces', from: 14999, scope: 'Single-space visualisation, 2 renders', desc: 'Spaces shown before they are built, for developers, architects and brands.',
+    items: ['Interior visualisation', 'Exterior visualisation', 'Architectural walkthroughs', '3D floor plans', 'Exhibition booth visualisation'] },
+  { id: 'vfx', name: 'VFX & CGI', from: 7999, unit: ' / shot', scope: 'Simple cleanup, tracking or compositing', desc: 'CG products and effects composited into live-action footage.',
+    items: ['VFX compositing', 'Camera / motion tracking', 'Rotoscoping & video cleanup', 'CGI / FOOH advertisements'] },
+  { id: 'video', name: 'Motion graphics & video', price: 'addon', desc: 'Motion graphics, edits and AI video that turn footage and renders into finished films.',
+    items: ['Motion graphics', 'Video editing', 'Reel / short-form video edits', 'Video colour grading', 'Subtitles & captions', 'Blender to Higgsfield AI videos', 'Higgsfield AI video changes'] },
+  { id: 'brand', name: 'Brand & print', from: 4999, scope: 'Basic logo design or a single print asset', desc: 'Identity and print design that matches your films and renders.',
+    items: ['Logo design', 'Brand identity kits', 'Packaging design', 'Brochure / catalogue design', 'Poster / flyer design', 'Presentation / pitch deck design'] },
+  { id: 'events', name: 'Events', from: 9999, scope: 'Basic event visual concept and backdrop design', desc: 'Everything on the ground and on screen for launches, conferences and brand events.',
+    items: ['Welcome standees (sunboard)', 'Backdrop artwork', 'Role cards', 'Menu design', 'Event screen / LED visuals'] },
+  { id: 'digital', name: 'Social & digital', from: 2999, scope: 'A set of 3 static social posts', desc: 'Social content and ad creatives for your launch online.',
+    items: ['Social media posts', 'Social media carousels', 'Digital ad creatives', 'Video thumbnails'] },
+  { id: 'pre', name: 'Pre-production & extras', from: 3999, scope: 'Basic storyboard or concept development', desc: 'Planning before production, and the extras after it.',
+    items: ['Storyboard development', 'Concept art & style frames', 'Format / aspect ratio adaptation', 'Additional revision rounds'] },
+];
 /* ============================================== */
 
 const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -515,8 +590,9 @@ const pct = Math.round(DISCOUNT * 100) + '%', gstPct = Math.round(GST * 100) + '
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- Estimate (pure) ---------- */
-// s.mode is 'anim' (tier × seconds + post-production) or 'models' (one fixed-price package)
+// s.mode is 'anim' (tier × seconds + post-production), 'models' (one fixed-price package) or 'custom' (quote only)
 function estimate(s) {
+  if (s.mode === 'custom') return null;
   const lines = [], anim = s.mode !== 'models';
   if (anim) {
     const t = TIERS[s.tier];
@@ -537,8 +613,8 @@ function makeSeq(dir, n, per, w) {
   for (let st = 8; st >= 1; st >>= 1) for (let k = 0; k < strips; k += st) if (!seen.has(k)) { seen.add(k); s.order.push(k); }
   return s;
 }
-const KB = makeSeq('kb-', 125, 5, 1440), AP = makeSeq('ap-', 96, 6, 517);
-const queue = [...KB.order.map(k => [KB, k]), ...AP.order.map(k => [AP, k])];
+const AP = makeSeq('ap-', 96, 6, 517);
+const queue = AP.order.map(k => [AP, k]);
 let qi = 0, active = 0, loaded = 0;
 function pump() {
   while (active < 4 && qi < queue.length) {
@@ -565,50 +641,147 @@ const contain = (sw, sh, b) => { const k = Math.min(b.w / sw, b.h / sh); return 
 const mix = (a, b, t) => ({ x: lerp(a.x, b.x, t), y: lerp(a.y, b.y, t), w: lerp(a.w, b.w, t), h: lerp(a.h, b.h, t) });
 const prog = el => { const r = el.getBoundingClientRect(); return { r, p: clamp(-r.top / (r.height - innerHeight)) }; };
 
-/* ---------- Stage 1: keyboard turns with the cursor, comes apart on scroll ---------- */
-// y = where each layer sits in the final exploded frame, 0 = top of the stack, 1 = bottom
-const LAYERS = [['01', 'Keycaps', .025], ['02', 'Top frame', .16], ['03', 'Switches', .25], ['04–06', 'Dampening ×3', .43], ['07', 'Plate', .575], ['08', 'PCB', .67], ['09–10', 'Foam ×2', .8], ['11', 'Bottom case', .93]];
-$('#layers').innerHTML = LAYERS.map(([n, t]) => `<li><b>${n}</b>${t}<i></i></li>`).join('');
-const layerLis = $$('#layers li'), heroCopy = $('#hero-copy'), side = $('#kb-side'), hint = $('#kb-hint'), kbCounter = $('#kb-counter');
-const kb = { sec: $('#kb'), c: $('#kb-canvas'), shown: 0, mouse: 0, mouseT: 0, key: '' };
-kb.ctx = kb.c.getContext('2d');
-addEventListener('pointermove', e => { if (e.pointerType === 'mouse') kb.mouseT = e.clientX / innerWidth; }, { passive: true });
-
-function tickKB() {
-  const { r, p } = prog(kb.sec); if (r.bottom < 0 || r.top > innerHeight) return;
-  const { W, H, d } = fit(kb.c), wide = W >= 900;
-  kb.mouse = lerp(kb.mouse, kb.mouseT, .08);
-  const target = clamp((p - .06) / .66) * 124 + (1 - smooth(0, .05, p)) * kb.mouse * 34;
-  kb.shown = reduce ? target : lerp(kb.shown, target, .18);
-  const i = Math.round(kb.shown), e = smooth(0, .14, p);
-  const box = mix(wide ? { x: W * .40, y: H * .14, w: W * .58, h: H * .78 } : { x: 0, y: H * .54, w: W, h: H * .40 },
-                  wide ? { x: 0, y: H * .1, w: W * .84, h: H * .86 } : { x: 0, y: H * .42, w: W, h: H * .52 }, e);
-  // phones: zoom onto the stack once it has come apart
-  const src = mix({ x: 0, y: 0, w: 1440, h: 800 }, { x: 360, y: 0, w: 740, h: 800 }, wide ? 0 : smooth(60, 100, kb.shown));
-  const dst = contain(src.w, src.h, box), img = frameAt(KB, i);
-  const key = [i, W, H, dst.x | 0, dst.y | 0, dst.w | 0, loaded, p.toFixed(3)].join();
-  if (key !== kb.key) {
-    kb.key = key;
-    const c = kb.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
-    c.save(); // the logo's orbit ring, behind the model
-    c.translate(dst.x + dst.w / 2, dst.y + dst.h * .52); c.rotate((-18 + p * 36) * Math.PI / 180);
-    c.strokeStyle = `rgba(105,99,102,${(.6 * (1 - smooth(.3, .55, p))).toFixed(3)})`; c.lineWidth = 1.5;
-    c.beginPath(); c.ellipse(0, 0, dst.w * .47, dst.h * (.2 + e * .12), 0, 0, Math.PI * 2); c.stroke(); c.restore();
-    if (img) c.drawImage(img[0], img[1] + src.x, src.y, src.w, src.h, dst.x, dst.y, dst.w, dst.h);
+/* ---------- Hero: the Trizar Z in 3D. Tilt it with the cursor, drag to spin, switch wireframe / clay / final ---------- */
+const LOGO = (() => {
+  const c = $('#ring'), ctx = c.getContext('2d'), btns = $$('.ring-modes button'), hero = $('#hero');
+  // The mark, drawn on a 300 × 262 grid like the logo: a Z with a 45° diagonal, a truss over it, a beam along the diagonal
+  const Z = [[60, 40], [240, 40], [240, 70], [120, 190], [240, 190], [240, 222], [60, 222], [60, 190], [180, 70], [60, 70]];
+  const lerp2 = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+  const chain = (a, b, n) => Array.from({ length: n }, (_, i) => lerp2(a, b, i / (n - 1)));
+  const STRIPS = [
+    [chain([60, 40], [240, 40], 4), chain([60, 70], [240, 70], 4)],     // top bar
+    [chain([240, 70], [120, 190], 4), chain([180, 70], [60, 190], 4)],  // diagonal
+    [chain([60, 190], [240, 190], 4), chain([60, 222], [240, 222], 4)], // bottom bar
+  ];
+  const seg = [], nodes = new Map(), key = p => p.map(Math.round).join();
+  for (const [a, b] of STRIPS) for (let i = 0; i < a.length; i++) {
+    nodes.set(key(a[i]), a[i]); nodes.set(key(b[i]), b[i]);
+    seg.push([a[i], b[i]]);
+    if (i < a.length - 1) seg.push([a[i], a[i + 1]], [b[i], b[i + 1]], [a[i], b[i + 1]]);
   }
-  const fade = smooth(.02, .1, p);
-  heroCopy.style.opacity = 1 - fade; heroCopy.style.translate = `0 ${-fade * 40}px`; heroCopy.style.visibility = fade > .99 ? 'hidden' : '';
-  hint.style.opacity = 1 - smooth(0, .05, p);
-  const sOn = smooth(.62, .7, p); side.style.opacity = sOn; side.classList.toggle('on', sOn > .5);
-  kbCounter.textContent = `Frame ${String(i * 2 + 1).padStart(3, '0')} / 250`;
-  if (wide) LAYERS.forEach((L, k) => {
-    const x = dst.x + (395 - src.x) * dst.k, y = dst.y + (10 + L[2] * 763 - src.y) * dst.k;
-    layerLis[k].style.transform = `translate(${x}px,${y}px) translate(-100%,-50%)`;
-    layerLis[k].classList.toggle('on', i >= 96 && p > .66 + k * .028);
-  });
-}
+  const NODES = [...nodes.values()];
+  const BEAM = [[18, 292], [300, 10]];
+  const DEPTH = 34, CX = 150, CY = 131, DIST = 3.4;
+  const to3 = ([x, y], z = 0) => [(x - CX) / 150, -(y - CY) / 150, z / 150];
 
-/* ---------- Stage 2: earbuds case opens, buds drop in ---------- */
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const unit = a => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  const L = unit([-.5, .6, .8]);
+
+  const st = { yaw: -.35, pitch: .18, spin: 0, vs: 0, tx: 0, ty: 0, hx: 0, hy: 0, m: 0, target: 0, drag: null, auto: !reduce, cycle: 0, t0: 0 };
+  function setMode(k, byUser) {
+    st.target = k;
+    btns.forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.m === k)));
+    if (byUser) st.auto = false;
+  }
+  btns.forEach(b => b.addEventListener('click', () => setMode(+b.dataset.m, true)));
+  // hovering anywhere in the hero tilts the mark toward the cursor
+  hero.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    const r = c.getBoundingClientRect();
+    st.hx = clamp((e.clientX - (r.left + r.width / 2)) / innerWidth * 2, -1, 1);
+    st.hy = clamp((e.clientY - (r.top + r.height / 2)) / innerHeight * 2, -1, 1);
+  });
+  hero.addEventListener('pointerleave', () => { st.hx = st.hy = 0; });
+  c.addEventListener('pointerdown', e => { st.drag = { x: e.clientX, id: e.pointerId }; st.auto = false; c.setPointerCapture(e.pointerId); });
+  c.addEventListener('pointermove', e => {
+    if (!st.drag || st.drag.id !== e.pointerId) return;
+    st.vs = (e.clientX - st.drag.x) * .01; st.drag.x = e.clientX; st.spin += st.vs;
+  });
+  const end = () => { st.drag = null; };
+  c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
+
+  function tick(now) {
+    const r = c.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight || !r.width) return;
+    if (!st.t0) st.t0 = now;
+    const { W, H, d } = fit(c), T = (now - st.t0) / 1000;
+    // spin: flick momentum, then ease back to face the viewer
+    if (!st.drag) { st.spin += st.vs; st.vs *= .94; if (Math.abs(st.vs) < .002) st.spin = lerp(st.spin, Math.round(st.spin / (Math.PI * 2)) * Math.PI * 2, .04); }
+    st.tx = lerp(st.tx, st.hx, .06); st.ty = lerp(st.ty, st.hy, .06);
+    const idle = reduce ? 0 : Math.sin(T * .6) * .12;
+    const yaw = st.yaw + st.spin + st.tx * .55 + idle, pitch = st.pitch + st.ty * .4;
+    if (st.auto && T > 2.4 && now - st.cycle > 2600) { st.cycle = now; setMode((st.target + 1) % 3, false); }
+    st.m = reduce ? st.target : lerp(st.m, st.target, .07);
+    const fillA = clamp(st.m), fk = clamp(st.m - 1);
+    const draw = reduce ? 1 : smooth(.1, 1.7, T);            // the truss draws itself on load
+
+    const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+    const rot = ([x, y, z]) => { const x1 = x * cy + z * sy, z1 = -x * sy + z * cy; return [x1, y * cp - z1 * sp, y * sp + z1 * cp]; };
+    const S = Math.min(W, H) * .4, ox = W / 2, oy = H / 2;
+    const proj = ([x, y, z]) => { const k = DIST / (DIST - z); return [ox + x * k * S, oy - y * k * S]; };
+    const P = (p, z) => { const v = rot(to3(p, z)); return { v, s: proj(v) }; };
+
+    ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H); ctx.lineJoin = ctx.lineCap = 'round';
+
+    // orbit ring: a tilted circle around the mark; the half behind it is drawn first
+    const ring = Array.from({ length: 97 }, (_, i) => {
+      const a = i / 96 * Math.PI * 2 + T * .5 * !reduce, e = [Math.cos(a) * 1.18, Math.sin(a) * .36, Math.sin(a) * .9];
+      const q = -.33, p3 = [e[0] * Math.cos(q) - e[1] * Math.sin(q), e[0] * Math.sin(q) + e[1] * Math.cos(q), e[2]];
+      const v = rot(p3); return { v, s: proj(v) };
+    });
+    const ringPass = front => {
+      ctx.lineWidth = 1.4; ctx.strokeStyle = `rgba(247,238,242,${.22 + .15 * fk})`; ctx.beginPath();
+      for (let i = 0; i < 96; i++) { const a = ring[i], b = ring[i + 1]; if ((a.v[2] + b.v[2] > 0) === front) { ctx.moveTo(...a.s); ctx.lineTo(...b.s); } }
+      ctx.stroke();
+      const sat = ring[0]; if ((sat.v[2] > 0) === front) { ctx.fillStyle = '#FF2E7E'; ctx.beginPath(); ctx.arc(...sat.s, 4.5, 0, 7); ctx.fill(); }
+    };
+    ringPass(false);
+
+    // the solid Z: two caps and the sides between them, back to front, faces turned away skipped
+    const F = Z.map(p => P(p, DEPTH / 2)), B = Z.map(p => P(p, -DEPTH / 2));
+    const polys = [];
+    const cap = (pts, n) => polys.push({ pts, n, z: pts.reduce((t, p) => t + p.v[2], 0) / pts.length, cap: true });
+    const nF = unit(rot([0, 0, 1])), nB = unit(rot([0, 0, -1]));
+    cap(F, nF); cap(B, nB);
+    for (let i = 0; i < Z.length; i++) {
+      const j = (i + 1) % Z.length, pts = [F[i], F[j], B[j], B[i]];
+      polys.push({ pts, n: unit(cross(sub(pts[1].v, pts[0].v), sub(pts[3].v, pts[0].v))), z: pts.reduce((t, p) => t + p.v[2], 0) / 4 });
+    }
+    const facing = q => dot(q.n, sub([0, 0, DIST], q.pts[0].v)) > 0;
+    // wireframe stage: the far outline and the depth edges, faint
+    if (fillA < .99) {
+      ctx.globalAlpha = .3 * (1 - fillA) * draw; ctx.strokeStyle = '#FF2E7E'; ctx.lineWidth = 1;
+      ctx.beginPath(); B.forEach((p, i) => i ? ctx.lineTo(...p.s) : ctx.moveTo(...p.s)); ctx.closePath();
+      F.forEach((p, i) => { ctx.moveTo(...p.s); ctx.lineTo(...B[i].s); }); ctx.stroke();
+    }
+    if (fillA > .01) {
+      ctx.globalAlpha = fillA;
+      for (const q of polys.filter(facing).sort((a, b) => a.z - b.z)) {
+        const diff = Math.max(0, dot(q.n, L)), lit = .35 + .65 * diff;
+        const clay = [178 * lit, 172 * lit, 175 * lit];
+        const fin = q.cap ? [247 * (.72 + .28 * diff), 238 * (.72 + .28 * diff), 242 * (.72 + .28 * diff)] : [255 * lit, 46 * lit, 126 * lit];
+        const col = clay.map((v, i) => Math.round(lerp(v, fin[i], fk)));
+        ctx.fillStyle = ctx.strokeStyle = `rgb(${col})`; ctx.lineWidth = .8;
+        ctx.beginPath(); q.pts.forEach((p, i) => i ? ctx.lineTo(...p.s) : ctx.moveTo(...p.s)); ctx.closePath(); ctx.fill(); ctx.stroke();
+      }
+    }
+    // the truss sits on the front face: bright in wireframe and final, a faint pencil line on clay
+    const frontVisible = dot(nF, sub([0, 0, DIST], F[0].v)) > 0;
+    const zT = frontVisible ? DEPTH / 2 + 1 : -DEPTH / 2 - 1;
+    const tA = (1 - fillA) + fillA * (fk * .95 + (1 - fk) * .18);
+    ctx.globalAlpha = tA; ctx.strokeStyle = fillA > .5 && fk < .5 ? '#2c2428' : '#FF2E7E'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    seg.forEach(([a, b], i) => {
+      const k = clamp(draw * seg.length - i); if (!k) return;
+      const pa = P(a, zT).s, pb = P(lerp2(a, b, k), zT).s; ctx.moveTo(...pa); ctx.lineTo(...pb);
+    });
+    ctx.stroke();
+    ctx.fillStyle = ctx.strokeStyle;
+    NODES.forEach((n, i) => { const k = clamp(draw * NODES.length - i); if (k) { ctx.beginPath(); ctx.arc(...P(n, zT).s, 4.2 * k, 0, 7); ctx.fill(); } });
+
+    // the beam along the diagonal, in front of everything
+    ctx.globalAlpha = 1; ctx.strokeStyle = '#FF2E7E'; ctx.lineWidth = 5;
+    const bk = reduce ? 1 : smooth(.6, 1.6, T), b0 = P(BEAM[0], DEPTH / 2 + 6).s, b1 = P(lerp2(BEAM[0], BEAM[1], bk), DEPTH / 2 + 6).s;
+    if (bk > 0) { ctx.beginPath(); ctx.moveTo(...b0); ctx.lineTo(...b1); ctx.stroke(); }
+    ringPass(true);
+  }
+  return { tick };
+})();
+
+/* ---------- Earbuds case opens, buds drop in ---------- */
 const ear = { sec: $('#ear'), c: $('#ear-canvas'), shown: 0, key: '' };
 ear.ctx = ear.c.getContext('2d');
 const beats = $$('.beat'), rail = $('.rail'), railNodes = $$('.rail b'), earCounter = $('#ear-counter');
@@ -642,9 +815,14 @@ function tickEar() {
 /* ---------- Budget calculator ---------- */
 const calc = $('#calc');
 const minRate = Math.min(...Object.values(TIERS).map(t => t.rate)), minModel = Math.min(...Object.values(MODELS).map(m => m.price));
+const priceText = { tier: `From ${inr(minRate)} / sec`, models: `From ${inr(minModel)}`, addon: `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec` };
+const QUOTE_GROUPS = SERVICES.filter(g => g.price !== 'tier' && g.price !== 'models');
+const fromText = g => g.from ? `From ${inr(g.from)}${g.unit || ''}` : priceText[g.price];
+const minFrom = Math.min(...SERVICES.filter(g => g.from).map(g => g.from));
 $('#mode-choices').innerHTML = [
   ['anim', '3D animation', `From ${inr(minRate)}<small> / sec</small>`, 'A finished film of your product. Modelling, lighting and rendering included.'],
   ['models', '3D models only', `From ${inr(minModel)}`, 'Detailed models of your products on their own, at a fixed price. No animation.'],
+  ['custom', 'Other services', `From ${inr(minFrom)}`, 'VFX, architecture, video, branding, events and social. Pick what you need.'],
 ].map(([id, name, price, desc], n) => `
   <label class="choice"><input type="radio" name="mode" id="mode-${id}" value="${id}"${n ? '' : ' checked'}>
   <span><b>${name}</b><strong>${price}</strong><small>${desc}</small></span></label>`).join('');
@@ -657,6 +835,9 @@ $('#tier-choices').innerHTML = Object.entries(TIERS).map(([id, t], n) => `
 $('#addon-choices').innerHTML = ADDONS.map(a => `
   <label class="choice"><input type="checkbox" id="addon-${a.id}" value="${a.id}"${a.on ? ' checked' : ''}>
   <span><b>${a.name}</b><strong>${inr(a.per15)}<small> / ${BASE_SEC} sec</small></strong><small>${a.desc}</small></span></label>`).join('');
+$('#pick-choices').innerHTML = QUOTE_GROUPS.map(g => `
+  <div><span class="part" id="pg-${g.id}">${g.name} · ${fromText(g)}</span><div class="pick-row" role="group" aria-labelledby="pg-${g.id}">${g.items.map(it => `
+    <label class="pick"><input type="checkbox" name="pick" data-group="${g.id}" value="${it}"><span>${it}</span></label>`).join('')}</div></div>`).join('');
 
 const readState = () => ({
   mode: calc.elements.mode.value,
@@ -664,11 +845,15 @@ const readState = () => ({
   tier: calc.elements.tier.value,
   sec: +$('#qty').value,
   addons: ADDONS.filter(a => $('#addon-' + a.id).checked).map(a => a.id),
+  picks: $$('#pick-choices input:checked').map(i => i.value),
   name: $('#f-name').value.trim(), brand: $('#f-brand').value.trim(), notes: $('#f-notes').value.trim(),
 });
 function brief(s, r) {
   const t = TIERS[s.tier], m = MODELS[s.pkg];
-  const L = ['Hi Trizar, here is a project brief from your budget calculator.', '',
+  const L = s.mode === 'custom'
+    ? ['Hi Trizar, I would like a quote for these services.', '',
+       ...(s.picks.length ? s.picks.map(p => { const g = QUOTE_GROUPS.find(g => g.items.includes(p)); return `- ${p} (${g.name}, ${fromText(g).toLowerCase()})`; }) : ['- (not picked yet)'])]
+    : ['Hi Trizar, here is a project brief from your budget calculator.', '',
     ...(s.mode === 'models'
       ? ['Service: 3D models only', `Package: ${m.name} (${inr(m.price)})`]
       : ['Service: 3D animation', `Tier: ${t.name} (${inr(t.rate)} per sec)`, `Length: ${s.sec} sec`,
@@ -685,49 +870,47 @@ function brief(s, r) {
   if (s.notes) L.push(`Notes: ${s.notes}`);
   return L.join('\n');
 }
-// cheapest and priciest estimate for each service, so the keyboard spans its full range whatever the prices are
-const tierIds = Object.keys(TIERS).sort((a, b) => TIERS[a].rate - TIERS[b].rate);
-const pkgIds = Object.keys(MODELS).sort((a, b) => MODELS[a].price - MODELS[b].price);
-const RANGE = {
-  anim: [estimate({ mode: 'anim', tier: tierIds[0], sec: +$('#qty').min, addons: [] }).total,
-         estimate({ mode: 'anim', tier: tierIds.at(-1), sec: +$('#qty').max, addons: ADDONS.map(a => a.id) }).total],
-  models: [estimate({ mode: 'models', pkg: pkgIds[0] }).total, estimate({ mode: 'models', pkg: pkgIds.at(-1) }).total],
-};
-const bud = { c: $('#bud-canvas'), shown: 30, target: 30, key: '' };
-bud.ctx = bud.c.getContext('2d');
+const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 function update() {
-  const s = readState(), r = estimate(s), b = brief(s, r), anim = s.mode !== 'models';
+  const s = readState(), r = estimate(s), b = brief(s, r), anim = s.mode === 'anim', custom = s.mode === 'custom';
   $$('[data-mode]').forEach(f => { f.hidden = f.dataset.mode !== s.mode; });
   $('#qty-out').textContent = s.sec + ' sec';
-  $('#t-total').textContent = inr(r.total);
-  $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = !(r.off || r.promo);
-  $('#t-off').textContent = `${PROMO.code} · ${promoPct} off`; $('#t-off').hidden = !r.promo;
-  $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
-    + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
-             : anim ? `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>` : '')
-    + (r.promo ? `<li class="disc"><span>Code ${PROMO.code}, ${promoPct} off</span><span>−${inr(r.promo)}</span></li>` : '')
-    + `<li class="sum"><span>Subtotal</span><span>${inr(r.net)}</span></li>`
-    + `<li><span>GST ${gstPct}</span><span>+${inr(r.gst)}</span></li>`
-    + `<li class="sum"><span>Total incl. GST</span><span>${inr(r.total)}</span></li>`;
-  $('#m-range').textContent = inr(r.total);
+  if (!custom) $('#t-label').textContent = 'Estimated budget';
+  $('.total').classList.toggle('quote', custom && !s.picks.length);
+  let subject;
+  if (custom) {
+    const n = s.picks.length, byGroup = QUOTE_GROUPS.map(g => [g, s.picks.filter(p => g.items.includes(p))]).filter(([, ps]) => ps.length);
+    const start = byGroup.reduce((t, [g]) => t + (g.from || ADDONS[0].per15), 0);
+    $('#t-label').textContent = n ? 'Starting from' : 'Your quote request';
+    $('#t-total').textContent = n ? inr(start) : 'Pick your services';
+    $('#t-sub').hidden = true; $('#t-off').hidden = true;
+    $('#t-lines').innerHTML = (n ? byGroup.map(([g, ps]) => `<li><span><b style="color:var(--bone);font-weight:650">${g.name}</b><br>${ps.map(esc).join(', ')}</span><span>${fromText(g).replace('From ', '')}</span></li>`).join('')
+      : `<li><span>Pick the services you need</span><span></span></li>`)
+      + `<li class="sum"><span>${n} service${n === 1 ? '' : 's'} picked</span><span>${n ? 'from ' + inr(start) : ''}</span></li>`;
+    $('#gst-note').textContent = 'Starting prices, before GST. We reply with a fixed quote for your scope.';
+    $('#m-range').textContent = n ? 'From ' + inr(start) : '0 services';
+    subject = `Quote request: ${n} service${n === 1 ? '' : 's'}`;
+  } else {
+    $('#t-total').textContent = inr(r.total);
+    $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = !(r.off || r.promo);
+    $('#t-off').textContent = `${PROMO.code} · ${promoPct} off`; $('#t-off').hidden = !r.promo;
+    $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
+      + (r.off ? `<li class="disc"><span>${pct} off, film longer than ${BASE_SEC} sec</span><span>−${inr(r.off)}</span></li>`
+               : anim ? `<li class="disc"><span>Go past ${BASE_SEC} sec to get ${pct} off</span><span></span></li>` : '')
+      + (r.promo ? `<li class="disc"><span>Code ${PROMO.code}, ${promoPct} off</span><span>−${inr(r.promo)}</span></li>` : '')
+      + `<li class="sum"><span>Subtotal</span><span>${inr(r.net)}</span></li>`
+      + `<li><span>GST ${gstPct}</span><span>+${inr(r.gst)}</span></li>`
+      + `<li class="sum"><span>Total incl. GST</span><span>${inr(r.total)}</span></li>`;
+    $('#gst-note').textContent = `Includes ${gstPct} GST, worked out on the price after any discount.`;
+    $('#m-range').textContent = inr(r.total);
+    subject = 'Project brief: ' + (anim ? `${TIERS[s.tier].name} animation, ${s.sec} sec` : `3D models, ${MODELS[s.pkg].name}`);
+  }
   $('#brief').value = b;
-  $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent('Project brief: ' + (anim ? `${TIERS[s.tier].name} animation, ${s.sec} sec` : `3D models, ${MODELS[s.pkg].name}`))}&body=${encodeURIComponent(b)}`;
+  $('#mail-brief').href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(b)}`;
   if (CONTACT.whatsapp) $('#wa-brief').href = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(b)}`;
-  // the keyboard comes further apart as the estimate grows
-  const [lo, hi] = RANGE[anim ? 'anim' : 'models'];
-  bud.target = 20 + clamp(Math.log(r.total / lo) / Math.log(hi / lo)) * 104;
 }
 calc.addEventListener('input', update);
 calc.addEventListener('change', update);
-function tickBud() {
-  const { W, H, d } = fit(bud.c); if (!W) return;
-  bud.shown = reduce ? bud.target : lerp(bud.shown, bud.target, .08);
-  const i = Math.round(bud.shown), img = frameAt(KB, i), key = [i, W, H, loaded].join();
-  if (key === bud.key) return;
-  bud.key = key;
-  const c = bud.ctx; c.setTransform(d, 0, 0, d, 0, 0); c.clearRect(0, 0, W, H);
-  if (img) { const q = contain(1440, 800, { x: 0, y: 0, w: W, h: H }); c.drawImage(img[0], img[1], 0, 1440, 800, q.x, q.y, q.w, q.h); }
-}
 
 /* ---------- Copy helpers (clipboard can be blocked inside embeds) ---------- */
 async function copyText(text, status, ok, select) {
@@ -742,16 +925,25 @@ $('#copy-email').addEventListener('click', () => copyText(CONTACT.email, $('#ema
 }));
 $('#m-go').addEventListener('click', () => $('#summary').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }));
 
-/* ---------- Contact + prices from the config above ---------- */
+/* ---------- Contact, services and prices from the config above ---------- */
 $('#email-text').textContent = CONTACT.email;
 $('#mail-link').href = 'mailto:' + CONTACT.email;
 if (CONTACT.whatsapp) { const a = $('#wa-link'); a.href = 'https://wa.me/' + CONTACT.whatsapp; a.hidden = false; $('#wa-brief').hidden = false; }
 if (CONTACT.instagram) { const a = $('#ig-link'); a.href = CONTACT.instagram; a.hidden = false; }
-const priceText = { tier: `From ${inr(minRate)} / sec`, models: `From ${inr(minModel)}`, addon: `${inr(ADDONS[0].per15)} / ${BASE_SEC} sec` };
-$$('[data-price]').forEach(el => { el.textContent = priceText[el.dataset.price]; });
-$('#svc-fine').textContent = (PROMO.off ? `Every project gets ${promoPct} off with code ${PROMO.code}. ` : '')
+const svcLink = { tier: ['#budget-anim', 'Estimate'], models: ['#budget-models', 'Estimate'] };
+$('#svc-grid').innerHTML = SERVICES.map((g, n) => {
+  const [href, go] = svcLink[g.price] || [`#budget-custom-${g.id}`, 'Get a quote'];
+  return `<article class="svc-card"><p class="num">${String(n + 1).padStart(2, '0')}</p><div><h3>${g.name}</h3></div><div style="display:grid;gap:16px;align-content:start"><p style="color:var(--mute);font-size:15px">${g.desc}</p>
+    <ul>${g.items.map(i => `<li>${i}</li>`).join('')}</ul></div>
+    <div class="svc-foot"><div><strong>${fromText(g)}</strong>${g.scope ? `<p class="note" style="margin-top:6px;font-size:13px">${g.scope}</p>` : ''}</div><a class="link" href="${href}">${go}</a></div></article>`;
+}).join('');
+const allItems = SERVICES.flatMap(g => g.items);
+$('#svc-count').textContent = allItems.length;
+const tick = allItems.map(i => `<span>${i}</span>`).join('');
+$('#ticker').innerHTML = tick + tick;
+if (reduce) $('#ticker').style.animation = 'none';
+$('#svc-fine').textContent = 'Starting prices shown. Final quote depends on scope, complexity and deliverables. ' + (PROMO.off ? `Every 3D animation and 3D model estimate gets ${promoPct} off with code ${PROMO.code}. ` : '')
   + `Films longer than ${BASE_SEC} seconds get ${PROMO.off ? 'a further ' : ''}${pct} off. Prices are before ${gstPct} GST, which the calculator adds.`;
-$('#gst-note').textContent = `Includes ${gstPct} GST, worked out on the price after any discount.`;
 
 /* ---------- Work: silent previews in view, full film with sound on click ---------- */
 const auto = !reduce && !(navigator.connection && navigator.connection.saveData);
@@ -775,15 +967,18 @@ $('#lb-close').addEventListener('click', () => lb.close());
 lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
 
 /* ---------- Routes: #budget, #budget-anim, #budget-premium, #budget-25, #budget-exclusive-60,
-   #budget-models, #budget-models-complex ---------- */
+   #budget-models, #budget-models-complex, #budget-custom, #budget-custom-events ---------- */
 const home = $('#home'), view = $('#budget-view'), bar = $('#top-bar');
 const own = (o, k) => Object.hasOwn(o, k);
 function route() {
   const h = location.hash.slice(1), [head, ...parts] = h.split('-');
-  const m = head === 'budget' && parts.every(p => p === 'anim' || p === 'models' || own(TIERS, p) || own(MODELS, p) || /^\d+$/.test(p));
+  const groupIds = QUOTE_GROUPS.map(g => g.id);
+  const m = head === 'budget' && (parts[0] === 'custom' ? parts.length < 3 && (!parts[1] || groupIds.includes(parts[1]))
+    : parts.every(p => p === 'anim' || p === 'models' || own(TIERS, p) || own(MODELS, p) || /^\d+$/.test(p)));
   home.hidden = m; view.hidden = !m;
   if (m) {
-    for (const p of parts) {
+    if (parts[0] === 'custom') $('#mode-custom').checked = true;
+    else for (const p of parts) {
       if (p === 'models' || own(MODELS, p)) $('#mode-models').checked = true;
       else $('#mode-anim').checked = true;
       if (own(TIERS, p)) $('#tier-' + p).checked = true;
@@ -791,13 +986,17 @@ function route() {
       if (/^\d+$/.test(p)) $('#qty').value = p;
     }
     update(); scrollTo({ top: 0, behavior: 'instant' });
+    // a service card's "Get a quote" lands on its own group in the picker
+    if (parts[0] === 'custom' && parts[1]) requestAnimationFrame(() => {
+      const g = $('#pg-' + parts[1]); if (g) scrollTo({ top: g.getBoundingClientRect().top + scrollY - 110, behavior: 'instant' });
+    });
   } else if (h === 'top') scrollTo({ top: 0, behavior: 'instant' });
   else if (h) { const el = document.getElementById(h); if (el) requestAnimationFrame(() => el.scrollIntoView()); }
 }
 addEventListener('hashchange', route);
 
 function loop() {
-  if (!home.hidden) { tickKB(); tickEar(); } else tickBud();
+  if (!home.hidden) { LOGO.tick(performance.now()); tickEar(); }
   bar.classList.toggle('solid', scrollY > 30 || !view.hidden);
   requestAnimationFrame(loop);
 }
