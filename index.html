@@ -114,6 +114,7 @@ p{margin:0}
 /* Scroll reveal: blocks rise in as they enter, siblings one after another */
 .js .rv{opacity:0;translate:0 44px;transition:opacity .9s ease calc(var(--i,0) * 90ms),translate 1s cubic-bezier(.2,.8,.2,1) calc(var(--i,0) * 90ms)}
 .js .rv.in{opacity:1;translate:0 0}
+.js .svc-card.rv{transition:opacity .9s ease calc(var(--i,0) * 90ms),translate 1s cubic-bezier(.2,.8,.2,1) calc(var(--i,0) * 90ms),transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
 /* outlined words: a render pass of light sweeps through them when they appear */
 .wire{background:linear-gradient(100deg,transparent 42%,rgb(255 46 126 / .95) 50%,transparent 58%) 0 0/250% 100% no-repeat;-webkit-background-clip:text;background-clip:text}
 .in .wire{animation:sweep 1.6s cubic-bezier(.6,0,.3,1) .35s both}
@@ -250,21 +251,38 @@ dialog.lb::backdrop{background:rgb(10 7 9 / .94)}
 .lb-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%}
 .lb-close{background:none;border:0;color:var(--bone);cursor:pointer;padding:8px 0}
 
-/* Services: one card per discipline, every service we take on listed inside */
-.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
-.svc-card{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;padding:clamp(22px,2vw,30px);background:var(--ink-2);
-  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%);transition:background .2s}
-.svc-card:hover{background:var(--ink-3)}
-.svc-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgb(255 46 126 / .13),transparent 65%)}
+/* Services: frosted-glass cards over slowly drifting light, so the glass has something to blur */
+#services{position:relative;isolation:isolate;overflow:hidden}
+.svc-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.svc-bg i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;will-change:transform}
+.svc-bg i:nth-child(1){width:46vw;height:46vw;left:-8vw;top:18%;background:radial-gradient(circle,#FF2E7E,transparent 68%);animation:drift1 22s ease-in-out infinite alternate}
+.svc-bg i:nth-child(2){width:38vw;height:38vw;right:-6vw;top:38%;background:radial-gradient(circle,#7a2cff,transparent 68%);opacity:.38;animation:drift2 26s ease-in-out infinite alternate}
+.svc-bg i:nth-child(3){width:34vw;height:34vw;left:34%;bottom:-6%;background:radial-gradient(circle,#ff8a3d,transparent 68%);opacity:.28;animation:drift3 30s ease-in-out infinite alternate}
+@keyframes drift1{to{transform:translate(28vw,10vh) scale(1.15)}}
+@keyframes drift2{to{transform:translate(-30vw,-14vh) scale(.9)}}
+@keyframes drift3{to{transform:translate(-18vw,-24vh) scale(1.2)}}
+.svc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:16px}
+.svc-card{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:14px;padding:clamp(22px,2vw,30px);border-radius:26px;overflow:hidden;
+  background:linear-gradient(150deg,rgb(255 255 255 / .11),rgb(255 255 255 / .03) 45%,rgb(255 255 255 / .06));
+  -webkit-backdrop-filter:blur(26px) saturate(170%);backdrop-filter:blur(26px) saturate(170%);
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / .28),inset 0 0 0 1px rgb(255 255 255 / .09),inset 0 -14px 30px -18px rgb(255 255 255 / .12),0 24px 60px -20px rgb(0 0 0 / .6);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.svc-card{background:rgb(32 26 30 / .92)}}
+/* the light catches the top edge, and a highlight follows the cursor across the glass */
+.svc-card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgb(255 255 255 / .14),transparent 22%),linear-gradient(115deg,transparent 30%,rgb(255 255 255 / .06) 42%,transparent 54%)}
+.svc-card:hover{transform:translateY(-4px);box-shadow:inset 0 1px 0 rgb(255 255 255 / .38),inset 0 0 0 1px rgb(255 255 255 / .16),inset 0 -14px 30px -18px rgb(255 255 255 / .16),0 34px 70px -22px rgb(0 0 0 / .7)}
+.svc-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%),rgb(255 255 255 / .16),rgb(255 46 126 / .08) 40%,transparent 70%)}
 .svc-card:hover::before{opacity:1}
-.svc-card li{transition:box-shadow .2s,color .2s}
-.svc-card li:hover{box-shadow:inset 0 0 0 1px var(--signal)}
+.svc-card li{border-radius:999px;background:rgb(255 255 255 / .06);box-shadow:inset 0 0 0 1px rgb(255 255 255 / .1);transition:box-shadow .2s,background .2s}
+.svc-card li:hover{background:rgb(255 46 126 / .16);box-shadow:inset 0 0 0 1px rgb(255 46 126 / .6)}
 .svc-card .num{font:500 10px/1 var(--mono);letter-spacing:.1em;color:var(--signal)}
 .svc-card h3{font:850 clamp(21px,1.9vw,28px)/1 var(--display);font-stretch:125%;text-transform:uppercase}
 .svc-card > p{color:var(--mute);font-size:15px}
 .svc-card ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px;align-content:start}
-.svc-card li{font-size:13px;line-height:1.3;padding:7px 10px;box-shadow:inset 0 0 0 1px var(--line);color:var(--bone)}
-.svc-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding-top:16px;border-top:1px solid var(--line)}
+.svc-card li{font-size:13px;line-height:1.3;padding:7px 12px;color:var(--bone)}
+.svc-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding-top:16px;border-top:1px solid rgb(255 255 255 / .1)}
 .svc-foot > div{flex:1 1 12rem;min-width:0}
 .svc-foot strong{font:750 15px/1 var(--body);font-stretch:112%;white-space:nowrap}
 .fine{margin-top:28px;color:var(--mute);font-size:14px}
@@ -341,6 +359,16 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .pick input:focus-visible + span{outline:2px solid var(--bone);outline-offset:2px}
 .total.quote{font-size:clamp(28px,2.6vw,38px)}
 .sum-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+/* the Trizar mark in 3D: the logo artwork stacked in thin layers for depth; it sways, and spins whenever the estimate changes */
+.sum-logo{position:relative;height:190px;margin:-6px 0 -8px;display:grid;place-items:center;perspective:900px}
+.z-sway{transform-style:preserve-3d;animation:z-sway 7s ease-in-out infinite}
+.z{position:relative;width:170px;aspect-ratio:360/300;transform-style:preserve-3d}
+.z span{position:absolute;inset:0;background:url(logo-stack.webp) top center/100% auto no-repeat;backface-visibility:visible}
+.z.spin{animation:z-spin 1.15s cubic-bezier(.25,1.3,.45,1)}
+.z-shadow{position:absolute;bottom:10px;left:50%;width:120px;height:14px;translate:-50% 0;border-radius:50%;background:radial-gradient(closest-side,rgb(255 46 126 / .35),transparent);animation:z-shadow 7s ease-in-out infinite}
+@keyframes z-sway{0%,100%{transform:rotateY(-30deg) rotateX(10deg) translateY(0)}50%{transform:rotateY(30deg) rotateX(-6deg) translateY(-8px)}}
+@keyframes z-spin{0%{transform:rotateY(0) scale(1)}45%{transform:rotateY(200deg) scale(1.08)}100%{transform:rotateY(360deg) scale(1)}}
+@keyframes z-shadow{0%,100%{scale:1;opacity:1}50%{scale:.8;opacity:.6}}
 .total{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;font:850 clamp(32px,3.2vw,48px)/1.05 var(--display);font-stretch:112%;font-variant-numeric:tabular-nums}
 .total s{font:500 14px/1 var(--mono);color:var(--mute)}
 .total .off{align-self:center;padding:6px 9px;background:var(--signal);color:var(--signal-ink);font:500 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
@@ -540,6 +568,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
 
   <!-- 4. Services -->
   <section id="services" class="section wrap" aria-labelledby="svc-title">
+    <div class="svc-bg" aria-hidden="true"><i></i><i></i><i></i></div>
     <div class="sec-head">
       <h2 class="display" id="svc-title"><span class="wire">What we</span> make</h2>
       <p class="lede">From a single product render to a full launch campaign. 3D animation is priced by the second and 3D models by the package. Everything else has a starting price: pick what you need and we send a fixed quote.</p>
@@ -621,6 +650,7 @@ details.brief textarea{margin-top:10px;width:100%;box-sizing:border-box;height:2
     </form>
 
     <aside class="summary" id="summary" aria-label="Your estimate">
+      <div class="sum-logo" aria-hidden="true"><div class="z-sway"><div class="z" id="sum-z"></div></div><i class="z-shadow"></i></div>
       <div>
         <p class="eyebrow" id="t-label">Estimated budget</p>
         <p class="total" aria-live="polite"><span id="t-total"></span><s id="t-sub"></s><span class="off" id="t-off"></span></p>
@@ -879,7 +909,7 @@ function update() {
     const n = s.picks.length, byGroup = QUOTE_GROUPS.map(g => [g, s.picks.filter(p => g.items.includes(p))]).filter(([, ps]) => ps.length);
     const start = byGroup.reduce((t, [g]) => t + (g.from || ADDONS[0].per15), 0);
     $('#t-label').textContent = n ? 'Starting from' : 'Your quote request';
-    $('#t-total').textContent = n ? inr(start) : 'Pick your services';
+    estimateChanged(n ? inr(start) : 'Pick your services');
     $('#t-sub').hidden = true; $('#t-off').hidden = true;
     $('#t-lines').innerHTML = (n ? byGroup.map(([g, ps]) => `<li><span><b style="color:var(--bone);font-weight:650">${g.name}</b><br>${ps.map(esc).join(', ')}</span><span>${fromText(g).replace('From ', '')}</span></li>`).join('')
       : `<li><span>Pick the services you need</span><span></span></li>`)
@@ -888,7 +918,7 @@ function update() {
     $('#m-range').textContent = n ? 'From ' + inr(start) : '0 services';
     subject = `Quote request: ${n} service${n === 1 ? '' : 's'}`;
   } else {
-    $('#t-total').textContent = inr(r.total);
+    estimateChanged(inr(r.total));
     $('#t-sub').textContent = inr(r.was); $('#t-sub').hidden = !(r.off || r.promo);
     $('#t-off').textContent = `${PROMO.code} · ${promoPct} off`; $('#t-off').hidden = !r.promo;
     $('#t-lines').innerHTML = r.lines.map(l => `<li><span>${l.label}</span><span>${inr(l.v)}</span></li>`).join('')
@@ -908,6 +938,36 @@ function update() {
 }
 calc.addEventListener('input', update);
 calc.addEventListener('change', update);
+
+/* ---------- Estimate: the 3D logo spins and the total counts to its new value whenever the estimate changes ---------- */
+const sumZ = $('#sum-z');
+sumZ.innerHTML = Array.from({ length: 14 }, (_, i) => {
+  const depth = (6.5 - i) * 1.3, shade = i ? (.55 - i * .022).toFixed(3) : 1;   // the front face full colour, the layers behind it darker
+  return `<span style="transform:translateZ(${depth}px);${i ? `filter:brightness(${shade}) saturate(.8)` : ''}"></span>`;
+}).join('');
+let spinning = false, lastTotal = '';
+sumZ.addEventListener('animationend', () => { sumZ.classList.remove('spin'); spinning = false; });
+const totalEl = $('#t-total');
+let shown = 0, tweenId = 0;
+function showTotal(text) {
+  const to = +String(text).replace(/[^\d]/g, '');
+  if (!/^₹/.test(text) || reduce || !shown) { totalEl.textContent = text; shown = to || 0; return; }
+  const from = shown, t0 = performance.now(), id = ++tweenId;
+  const step = now => {
+    if (id !== tweenId) return;
+    const k = clamp((now - t0) / 650), e = 1 - Math.pow(1 - k, 3);
+    totalEl.textContent = inr(from + (to - from) * e);
+    if (k < 1) requestAnimationFrame(step); else totalEl.textContent = text;
+  };
+  shown = to; requestAnimationFrame(step);
+}
+function estimateChanged(text) {
+  if (text === lastTotal) return;
+  const first = !lastTotal; lastTotal = text;
+  showTotal(text);
+  if (first || reduce || spinning || view.hidden) return;
+  spinning = true; sumZ.classList.remove('spin'); void sumZ.offsetWidth; sumZ.classList.add('spin');
+}
 
 /* ---------- Copy helpers (clipboard can be blocked inside embeds) ---------- */
 async function copyText(text, status, ok, select) {
