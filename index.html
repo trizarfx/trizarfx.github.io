@@ -713,7 +713,7 @@ const BASE_SEC = 15;   // prices are quoted for 15 seconds
 const DISCOUNT = 0.10; // films longer than BASE_SEC get this much off the whole estimate
 const GST = 0.18;      // added on top of the estimate, after the discounts
 // promo applied to every estimate, after the length discount. Set off: 0 to switch it off
-const PROMO = { code: 'ANGLEPROJECTS', off: 0.20 }; // applies to animation and 3D models alike
+const PROMO = { code: '', off: 0 }; // promo code discount on animation and 3D models; off: 0 = no promo (e.g. { code: 'CODE', off: 0.20 } for 20% off)
 // Everything we make, one card per discipline. price: 'tier' | 'models' | 'addon' show a live price from the
 // tables above and link to that calculator. Others show 'From <from><unit>' (starting price, before GST) with
 // its basic scope, and link to the quote picker.
